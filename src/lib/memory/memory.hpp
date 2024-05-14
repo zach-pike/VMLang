@@ -6,6 +6,8 @@
 
 #include "mmio/mmio.hpp"
 
+#define VM_MEMORY_SIZE 1000000
+
 class SystemMemory {
 private:
     bool initialized = false;
@@ -22,6 +24,8 @@ public:
     // Called when program is started or is used when resetting state of machine
     void allocateMemory();
     void deallocateMemory();
+
+    std::uint8_t* getRaw();
 
     std::uint8_t getU8(std::uint64_t address);
     std::uint16_t getU16(std::uint64_t address);

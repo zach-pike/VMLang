@@ -1,11 +1,49 @@
-#include "lib/memory/memory.hpp"
+#include "lib/vm.hpp"
+#include "lib/compiler/compiler.hpp"
 
 #include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
 
 int main() {
-    char data[64] = { 0 };
+    BuiltinCompiler compiler;
 
-    memcpy(data, "hello world!", 12);
+    compiler.setInsertOffset(0x100);
 
-    memDump((std::uint8_t*)data, 0, 64);
+    InstructionArg a;
+    a.type = InstructionArgType::IMM;
+    a.size = 4;
+    a.isSigned = false;
+    a.value = 69420;
+
+    compiler.insertInstruction(Instructions::Halt, a);
+
+    VM vm;
+    vm.initializeVM();
+
+    SystemMemory& mem = vm.getMemory();
+
+    // Copy program to system ram
+    memcpy(mem.getRaw(), compiler.getRaw(), VM_MEMORY_SIZE);
+
+    while(true) {
+        printf("> ");
+        char c;
+        std::cin >> c;
+
+        switch(c) {
+            case 's': {
+                vm.stepExecution(true);
+            } break;
+            case 'd': {
+                // Dump registers and stack
+                vm.dumpEverything();
+            } break;
+
+            case 'q': exit(0);
+        }
+    }
+
+    return 0;
 }

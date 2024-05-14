@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define VM_MEMORY_SIZE 1000000
-
 SystemMemory::SystemMemory() {}
 SystemMemory::~SystemMemory() {
     if (initialized) deallocateMemory();
@@ -18,6 +16,7 @@ void SystemMemory::addMMIODevice(std::shared_ptr<MMIODevice> mmioDev) {
 void SystemMemory::allocateMemory() {
     if (!initialized) {
         memory = new std::uint8_t[VM_MEMORY_SIZE]; // 1MB of ram
+        initialized = true;
     }
 
     memset(memory, 0, VM_MEMORY_SIZE); // Fill zeros
@@ -26,6 +25,11 @@ void SystemMemory::allocateMemory() {
 void SystemMemory::deallocateMemory() {
     if (!initialized) return;
     delete[] memory;
+    initialized = false;
+}
+
+std::uint8_t* SystemMemory::getRaw() {
+    return memory;
 }
 
 std::uint8_t SystemMemory::getU8(std::uint64_t address) {
