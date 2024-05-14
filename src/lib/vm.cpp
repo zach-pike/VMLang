@@ -1,5 +1,10 @@
 #include "vm.hpp"
 
+#include <iostream>
+#include <sstream>
+
+#include "lib/errors/errors.hpp"
+
 const char* instrNames[] = {
     "NoOp",
     "Halt",
@@ -19,8 +24,16 @@ char regNames[] = {
     'D'
 };
 
-#include <iostream>
-#include <sstream>
+std::uint64_t& VMRegs::getReg(VMReg reg) {
+    switch(reg) {
+        case VMReg::A: return a;
+        case VMReg::B: return b;
+        case VMReg::C: return c;
+        case VMReg::D: return d;
+        case VMReg::IP: return ip;
+        default: throw ArgumentException(0);
+    }
+}
 
 InstructionArg::InstructionArg() {
     type = InstructionArgType::IMM;
@@ -32,7 +45,7 @@ InstructionArg::InstructionArg() {
 std::string InstructionArg::toString() const {
     std::string s;
 
-    s.append("InstructionArg {");
+    s.append("Arg {");
 
     switch(type) {
         case InstructionArgType::IMM: {
@@ -40,7 +53,6 @@ std::string InstructionArg::toString() const {
                 s.push_back('}');
                 return s;
             }
-
             s.append(" Immediate(");
             if (isSigned) s.push_back('S'); else s.push_back('U');
             s.append(std::to_string(size*8));
@@ -52,7 +64,7 @@ std::string InstructionArg::toString() const {
             s.push_back(regNames[value]);
         } break;
         case InstructionArgType::IMM_MEM_ADDR: {
-            s.append("Immediate Address: ");
+            s.append(" Immediate Address: ");
             s.append(std::to_string(value));
         } break;
     }
@@ -64,10 +76,6 @@ std::string InstructionArg::toString() const {
 
 VM::VM() {}
 VM::~VM() {}
-
-SystemMemory& VM::getMemory() {
-    return memory;
-}
 
 void VM::initializeVM(std::uint64_t execStartAddr) {
     // Initialize registers
@@ -112,11 +120,71 @@ void VM::stepExecution(bool debug) {
         } break;
 
         case Instructions::Push: {
-            // 
+            switch(arg1.type) {
+                case InstructionArgType::IMM: {
+                    // Push a immediate value
+                    StackItem item;
+                    item.value = arg1.value;
+                    item.isSigned = arg1.isSigned;
+                    item.size = arg1.size;
+
+                    stack.pushStackItem(item);
+                } break;
+
+                case InstructionArgType::IMM_MEM_ADDR: {
+                    // Pulls a byte from the memory address specified
+                    StackItem item;
+                    item.value = memory.getU8(arg1.value);
+                    item.isSigned = false;
+                    item.size = 1;
+
+                    stack.pushStackItem(item);
+                } break;
+
+                case InstructionArgType::REG: {
+                    StackItem item;
+                    switch(arg1.value) {
+                        case 0: item.value = regs.a; break;
+                        case 1: item.value = regs.b; break;
+                        case 2: item.value = regs.c; break;
+                        case 3: item.value = regs.d; break;
+                    }
+                    item.isSigned = false;
+                    item.size = 1;
+
+                    stack.pushStackItem(item);
+                } break;
+            }
+        } break;
+
+        case Instructions::Pop: {
+            switch(arg1.type) {
+                case InstructionArgType::IMM_MEM_ADDR: {
+                    // try to pop u8 off stack and store it at memory address specified
+                    StackItem item = stack.popStackItem();
+                    if (item.size != 1) throw ArgumentException(regs.ip);
+                    memory.setU8(arg1.value, item.value);
+                } break;
+
+                case InstructionArgType::REG: {
+                    StackItem item = stack.popStackItem();
+                    if (item.size != 8) throw ArgumentException(regs.ip);
+
+                    regs.getReg((VMReg)arg1.value) = item.value;
+                } break;
+            }
         } break;
     }
 
     if (ipIncreases) regs.ip += 1 + sizeof(InstructionArg) * 2;
+}
+
+SystemMemory& VM::getMemory() {
+    return memory;
+}
+
+Stack& VM::getStack() {
+    return stack;
 }
 
 void VM::dumpEverything() const {

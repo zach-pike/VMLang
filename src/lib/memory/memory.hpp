@@ -31,6 +31,11 @@ public:
     std::uint16_t getU16(std::uint64_t address);
     std::uint32_t getU32(std::uint64_t address);
     std::uint64_t getU64(std::uint64_t address);
+
+    void setU8(std::uint64_t address, std::uint8_t value);
+    void setU16(std::uint64_t address, std::uint16_t value);
+    void setU32(std::uint64_t address, std::uint32_t value);
+    void setU64(std::uint64_t address, std::uint64_t value);
 };
 
 

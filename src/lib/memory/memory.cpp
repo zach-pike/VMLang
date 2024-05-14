@@ -43,6 +43,10 @@ std::uint64_t SystemMemory::getU64(std::uint64_t address) {
     return *(std::uint64_t*)memory[address];
 }
 
+void SystemMemory::setU8(std::uint64_t address, std::uint8_t value) {
+    memory[address] = value;
+}
+
 
 void memDump(const std::uint8_t* data, std::size_t start, std::size_t end) {
     printf("\t0x0\t0x1\t0x2\t0x3\t0x4\t0x5\t0x6\t0x7\t0x8\t0x9\t0xA\t0xB\t0xC\t0xD\t0xE\t0xF\n");

@@ -7,7 +7,15 @@
 #include <vector>
 
 
-struct EmulatorRegs {
+enum class VMReg : std::uint8_t {
+    A  = 0,
+    B  = 1,
+    C  = 2,
+    D  = 3,
+    IP = 4
+};
+
+struct VMRegs {
     // General registers
     std::uint64_t a;
     std::uint64_t b;
@@ -15,6 +23,8 @@ struct EmulatorRegs {
     std::uint64_t d;
 
     std::uint64_t ip;  // Instruction Pointer
+
+    std::uint64_t& getReg(VMReg);
 };
 
 enum class InstructionArgType : std::uint8_t {
@@ -54,7 +64,7 @@ enum class Instructions : std::uint8_t {
 class VM {
 private:
     // System Registers
-    EmulatorRegs regs;
+    VMRegs regs;
 
     // System RAM
     SystemMemory memory;
@@ -63,10 +73,11 @@ public:
     VM();
     ~VM();
 
-    SystemMemory& getMemory();
-
     void initializeVM(std::uint64_t execStartAddr = 0x100);
-    void stepExecution(bool debug); 
+    void stepExecution(bool debug);
+
+    SystemMemory& getMemory();
+    Stack&        getStack();
 
     void dumpEverything() const;
 };

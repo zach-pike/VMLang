@@ -18,6 +18,7 @@ public:
 
     void pushStackItem(StackItem item);
     StackItem popStackItem();
+    StackItem peek() const;
 
     void dump() const;
 };

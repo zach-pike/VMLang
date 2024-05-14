@@ -11,9 +11,13 @@ void Stack::pushStackItem(StackItem item) {
 }
 
 StackItem Stack::popStackItem() {
-    StackItem a = stack.back();
+    StackItem a = peek();
     stack.pop_back();
     return a;
+}
+
+StackItem Stack::peek() const {
+    return stack.back();
 }
 
 void Stack::dump() const {

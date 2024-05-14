@@ -1,5 +1,6 @@
 #include "lib/vm.hpp"
 #include "lib/compiler/compiler.hpp"
+#include "lib/errors/errors.hpp"
 
 #include "string.h"
 #include <stdio.h>
@@ -12,29 +13,40 @@ int main() {
     compiler.setInsertOffset(0x100);
 
     InstructionArg a;
-    a.type = InstructionArgType::IMM;
-    a.size = 4;
+    a.type = InstructionArgType::REG;
+    a.size = 8;
     a.isSigned = false;
-    a.value = 69420;
+    a.value = 0;
 
-    compiler.insertInstruction(Instructions::Halt, a);
+    compiler.insertInstruction(Instructions::Pop, a);
+    compiler.insertInstruction(Instructions::Halt);
 
     VM vm;
-    vm.initializeVM();
+    vm.initializeVM();          // Initialize memory and stack
 
+    // Get reference to mem and stack
     SystemMemory& mem = vm.getMemory();
+    Stack&      stack = vm.getStack();
+
+    // Add item to stack
+    stack.pushStackItem(StackItem{ .value = 420, .size = 8, .isSigned = false});
 
     // Copy program to system ram
     memcpy(mem.getRaw(), compiler.getRaw(), VM_MEMORY_SIZE);
 
     while(true) {
         printf("> ");
+
         char c;
         std::cin >> c;
 
         switch(c) {
             case 's': {
-                vm.stepExecution(true);
+                try {
+                    vm.stepExecution(true);
+                } catch(ArgumentException e) {
+                    std::cout << "Error in execution! ArgumentException! what()->\"" << e.what() << "\"\n";
+                }
             } break;
             case 'd': {
                 // Dump registers and stack
