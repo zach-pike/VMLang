@@ -12,13 +12,9 @@ int main() {
 
     compiler.setInsertOffset(0x100);
 
-    InstructionArg a;
-    a.type = InstructionArgType::REG;
-    a.size = 8;
-    a.isSigned = false;
-    a.value = 0;
-
-    compiler.insertInstruction(Instructions::Pop, a);
+    compiler.insertInstruction(Instructions::Push, InstructionArg(InstructionArgType::IMM, 8, 2000, false));
+    compiler.insertInstruction(Instructions::Push, InstructionArg(InstructionArgType::IMM, 8, 2000, false));
+    compiler.insertInstruction(Instructions::AddStack);
     compiler.insertInstruction(Instructions::Halt);
 
     VM vm;
@@ -27,9 +23,6 @@ int main() {
     // Get reference to mem and stack
     SystemMemory& mem = vm.getMemory();
     Stack&      stack = vm.getStack();
-
-    // Add item to stack
-    stack.pushStackItem(StackItem{ .value = 420, .size = 8, .isSigned = false});
 
     // Copy program to system ram
     memcpy(mem.getRaw(), compiler.getRaw(), VM_MEMORY_SIZE);

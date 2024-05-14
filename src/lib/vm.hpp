@@ -39,7 +39,7 @@ struct InstructionArg {
     bool               isSigned;
     std::uint64_t      value;
 
-    InstructionArg();
+    InstructionArg(InstructionArgType type = InstructionArgType::IMM, std::uint8_t size = 0, std::uint64_t value = 0, bool isSigned = false);
     std::string toString() const;
 } __attribute__((packed));
 

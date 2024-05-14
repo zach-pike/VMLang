@@ -35,11 +35,11 @@ std::uint64_t& VMRegs::getReg(VMReg reg) {
     }
 }
 
-InstructionArg::InstructionArg() {
-    type = InstructionArgType::IMM;
-    size = 0;
-    isSigned = false;
-    value = 0;
+InstructionArg::InstructionArg(InstructionArgType _type, std::uint8_t _size, std::uint64_t _value, bool _isSigned) {
+    type = _type;
+    size = _size;
+    isSigned = _isSigned;
+    value = _value;
 }
 
 std::string InstructionArg::toString() const {
@@ -100,6 +100,7 @@ void VM::stepExecution(bool debug) {
 
     bool ipIncreases = true;
 
+    if (debug)
     std::cout
         << std::hex << "0x" << regs.ip
         << ": OPCODE " 
@@ -173,6 +174,62 @@ void VM::stepExecution(bool debug) {
                     regs.getReg((VMReg)arg1.value) = item.value;
                 } break;
             }
+        } break;
+
+        case Instructions::Add: {
+            std::uint64_t numA;
+            std::uint64_t numB;
+
+            switch (arg1.type) {
+                case InstructionArgType::IMM: numA = arg1.value; break;
+                case InstructionArgType::REG: numA = regs.getReg((VMReg)arg1.value); break;
+            }
+            switch (arg2.type) {
+                case InstructionArgType::IMM: numB = arg2.value;break;
+                case InstructionArgType::REG: numB = regs.getReg((VMReg)arg2.value); break;
+            }
+
+            std::uint64_t sum = numA + numB;
+
+            stack.pushStackItem(StackItem{ .value = sum, .size = 8, .isSigned = false });
+        } break;
+
+        case Instructions::AddStack: {
+            StackItem itm1 = stack.popStackItem();
+            StackItem itm2 = stack.popStackItem();
+
+            std::uint64_t sum = itm1.value + itm2.value;
+            stack.pushStackItem(StackItem{ .value = sum, .size = 8, .isSigned = false });
+        } break;
+
+        case Instructions::Sub: {
+            std::uint64_t numA;
+            std::uint64_t numB;
+
+            switch (arg1.type) {
+                case InstructionArgType::IMM: numA = arg1.value; break;
+                case InstructionArgType::REG: numA = regs.getReg((VMReg)arg1.value); break;
+            }
+            switch (arg2.type) {
+                case InstructionArgType::IMM: numB = arg2.value;break;
+                case InstructionArgType::REG: numB = regs.getReg((VMReg)arg2.value); break;
+            }
+
+            std::uint64_t diff = numA - numB;
+
+            stack.pushStackItem(StackItem{ .value = diff, .size = 8, .isSigned = false });
+        } break;
+
+        case Instructions::SubStack: {
+            StackItem itm1 = stack.popStackItem();
+            StackItem itm2 = stack.popStackItem();
+
+            std::uint64_t diff = itm1.value - itm2.value;
+            stack.pushStackItem(StackItem{ .value = diff, .size = 8, .isSigned = false });
+        } break;
+
+        case Instructions::Dump: {
+            dumpEverything();
         } break;
     }
 
