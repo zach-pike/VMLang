@@ -53,6 +53,8 @@ void SystemMemory::setU8(std::uint64_t address, std::uint8_t value) {
 void SystemMemory::loadFromFile(std::string fp) {
     std::ifstream file(fp, std::ios::in | std::ios::binary);
 
+    if (!file.is_open()) throw std::runtime_error("File doesn't exist!");
+
     file.read((char*)memory, VM_MEMORY_SIZE);
 
     file.close();
