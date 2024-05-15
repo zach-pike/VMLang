@@ -74,7 +74,7 @@ public:
     ~VM();
 
     void initializeVM(std::uint64_t execStartAddr = 0x100);
-    void stepExecution(bool debug);
+    bool stepExecution(bool debug);
 
     SystemMemory& getMemory();
     Stack&        getStack();

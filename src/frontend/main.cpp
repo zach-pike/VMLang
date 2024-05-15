@@ -44,6 +44,9 @@ int main() {
                 // Dump registers and stack
                 vm.dumpEverything();
             } break;
+            case 'r': {
+                while(!vm.stepExecution(true));
+            } break;
 
             case 'q': exit(0);
         }

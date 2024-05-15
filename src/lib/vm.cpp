@@ -90,7 +90,7 @@ void VM::initializeVM(std::uint64_t execStartAddr) {
     memory.allocateMemory();
 }
 
-void VM::stepExecution(bool debug) {
+bool VM::stepExecution(bool debug) {
     // Fetch instruction at IP
     std::uint8_t instr = memory.getRaw()[regs.ip];
 
@@ -99,6 +99,7 @@ void VM::stepExecution(bool debug) {
     InstructionArg arg2 = *(InstructionArg*)(memory.getRaw() + regs.ip + 1 + sizeof(InstructionArg));
 
     bool ipIncreases = true;
+    bool machineHalted = false;
 
     if (debug)
     std::cout
@@ -118,6 +119,7 @@ void VM::stepExecution(bool debug) {
 
         case Instructions::Halt: {
             ipIncreases = false;
+            machineHalted = true;
         } break;
 
         case Instructions::Push: {
@@ -234,6 +236,8 @@ void VM::stepExecution(bool debug) {
     }
 
     if (ipIncreases) regs.ip += 1 + sizeof(InstructionArg) * 2;
+
+    return machineHalted;
 }
 
 SystemMemory& VM::getMemory() {
