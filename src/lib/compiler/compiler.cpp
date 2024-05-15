@@ -74,6 +74,7 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
 
         isSigned = firstToken.value.rfind('s', 0) == 0;
         isUnused = false;
+        type = PrecompiledInstructionArgumentType::IMM;
 
         LexerToken valueToken = tokens.at(2);
         assert((valueToken.type == TokenType::LITERAL));
