@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <iostream>
+#include <fstream>
+
 SystemMemory::SystemMemory() {}
 SystemMemory::~SystemMemory() {
     if (initialized) deallocateMemory();
@@ -46,6 +49,15 @@ std::uint64_t SystemMemory::getU64(std::uint64_t address) {
 void SystemMemory::setU8(std::uint64_t address, std::uint8_t value) {
     memory[address] = value;
 }
+
+void SystemMemory::loadFromFile(std::string fp) {
+    std::ifstream file(fp, std::ios::in | std::ios::binary);
+
+    file.read((char*)memory, VM_MEMORY_SIZE);
+
+    file.close();
+}
+
 
 
 void memDump(const std::uint8_t* data, std::size_t start, std::size_t end) {

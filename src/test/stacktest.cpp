@@ -1,5 +1,5 @@
 #include "lib/vm.hpp"
-#include "lib/compiler/inlineassembler/compiler.hpp"
+#include "lib/compiler/programAssembler/prgmAssembler.hpp"
 #include "lib/errors/errors.hpp"
 
 #include "string.h"
@@ -9,7 +9,7 @@
 #include <cassert>
 
 int main() {
-    BuiltinCompiler compiler;
+    ProgramAssembler compiler;
 
     compiler.setInsertOffset(0x100);
 

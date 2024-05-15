@@ -18,6 +18,7 @@ private:
         std::string strValue;
 
         std::uint64_t value;
+        std::uint8_t size;
         bool isSigned;
         bool isUnused;
 
@@ -25,7 +26,8 @@ private:
 
         PrecompiledInstructionArgument(
             std::string _sv = "",
-            std::uint64_t _v = 0, 
+            std::uint64_t _v = 0,
+            std::uint8_t sz = 0,
             bool is = false, 
             bool iu = true,
             PrecompiledInstructionArgumentType tp = PrecompiledInstructionArgumentType::IMM);

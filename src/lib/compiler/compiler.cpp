@@ -3,17 +3,21 @@
 #include <iostream>
 #include <fstream>
 #include <assert.h>
+#include <algorithm>
 
+#include "programAssembler/prgmAssembler.hpp"
 
 Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
     std::string _strval,
     std::uint64_t _value,
+    std::uint8_t _size,
     bool _isSigned,
     bool _isUnused,
     PrecompiledInstructionArgumentType _type
 ):
     strValue(_strval),
     value(_value),
+    size(_size),
     isSigned(_isSigned),
     isUnused(_isUnused),
     type(_type) {}
@@ -21,11 +25,64 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
 Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
     const std::vector<LexerToken>& tokens
 ) { 
-    std::cout << "Arg toks begin\n";
-    for (const LexerToken& tok : tokens) {
-        std::cout << (int)tok.type << ' ' << tok.value << '\n';
+    // Check what the first literal says
+    assert((tokens.size() > 0));
+    assert((tokens.at(0).type == TokenType::LITERAL));
+
+
+    LexerToken firstToken = tokens.at(0);
+
+    if (firstToken.value.rfind('%', 0) == 0) {
+        // Get the char after the percent
+        assert((firstToken.value.size() > 1));
+
+        std::vector<std::string> regs = {
+            "a",
+            "b",
+            "c",
+            "d",
+            "ip"
+        };
+
+        std::string s = firstToken.value.substr(1);
+
+        std::uint64_t regNum = std::find(regs.begin(), regs.end(), s) - regs.begin();;
+
+        // initialize struct
+        strValue = "";
+        value = regNum;
+        size = 8;
+        isSigned = false;
+        isUnused = false;
+        type = PrecompiledInstructionArgumentType::REG;
+
+
+    } else if (firstToken.value.rfind('$', 0) == 0) {
+        std::string s = firstToken.value.substr(1);
+
+        strValue = s;
+        value = 0;
+        size = 8;
+        isSigned = false;
+        isUnused = false;
+        type = PrecompiledInstructionArgumentType::LABEL_ADDRESS;
+    } else if (firstToken.value.rfind('u', 0) == 0 || firstToken.value.rfind('s', 0) == 0) {
+        std::string s = firstToken.value.substr(1);
+
+        strValue = "";
+        size = std::stoi(s) / 8;
+
+        isSigned = firstToken.value.rfind('s', 0) == 0;
+        isUnused = false;
+
+        LexerToken valueToken = tokens.at(2);
+        assert((valueToken.type == TokenType::LITERAL));
+
+        value = std::stoull(valueToken.value);
+    } else {
+        throw std::runtime_error("Could not parse arguments!");
     }
-    std::cout << "Arg toks end\n";
+
 }
 
 Compiler::PrecompiledInstruction::PrecompiledInstruction(
@@ -126,7 +183,7 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
                     PrecompiledInstructionArgument(),
                     PrecompiledInstructionArgument()));
 
-            i += 2;
+            i += 1;
             continue;
         }
 
@@ -191,6 +248,77 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
         continue;
 
     }
+
+    // At this point we have 2 maps that contain the instructions and now we just need to actually
+    // convert to bytecode
+
+    ProgramAssembler assem;
+
+    assert((labelAddresses.size() > 0));
+
+    std::map<std::string, std::uint64_t>::iterator it;
+
+    for (it = labelAddresses.begin(); it != labelAddresses.end(); it++) {
+        // Start inserting instructions at address required
+        assem.setInsertOffset(it->second);
+
+        // Lookup the symbols and insert each one
+        auto symbolList = symbols.at(it->first);
+
+        for (const auto& sym : symbolList) {
+            if (sym.arg1.isUnused && sym.arg2.isUnused) {
+                assem.insertInstruction(sym.instr);
+
+            } else if (!sym.arg1.isUnused && sym.arg2.isUnused) {
+                InstructionArg arg1;
+                
+                if (sym.arg1.type == PrecompiledInstructionArgumentType::IMM) {
+                    arg1.type = InstructionArgType::IMM,
+                    arg1.size = sym.arg1.size;
+                    arg1.isSigned = sym.arg1.isSigned;
+                    arg1.value = sym.arg1.value;
+                } else if (sym.arg1.type == PrecompiledInstructionArgumentType::REG) {
+                    arg1.type = InstructionArgType::REG;
+                    arg1.size = 8;
+                    arg1.isSigned = false;
+                    arg1.value = sym.arg1.value;
+                }
+
+                assem.insertInstruction(sym.instr, arg1);
+            } else if (!sym.arg1.isUnused && !sym.arg2.isUnused) {
+                InstructionArg arg1;
+                InstructionArg arg2;
+                
+                if (sym.arg1.type == PrecompiledInstructionArgumentType::IMM) {
+                    arg1.type = InstructionArgType::IMM,
+                    arg1.size = sym.arg1.size;
+                    arg1.isSigned = sym.arg1.isSigned;
+                    arg1.value = sym.arg1.value;
+                } else if (sym.arg1.type == PrecompiledInstructionArgumentType::REG) {
+                    arg1.type = InstructionArgType::REG;
+                    arg1.size = 8;
+                    arg1.isSigned = false;
+                    arg1.value = sym.arg1.value;
+                }
+                
+                if (sym.arg2.type == PrecompiledInstructionArgumentType::IMM) {
+                    arg2.type = InstructionArgType::IMM,
+                    arg2.size = sym.arg2.size;
+                    arg2.isSigned = sym.arg2.isSigned;
+                    arg2.value = sym.arg2.value;
+                } else if (sym.arg2.type == PrecompiledInstructionArgumentType::REG) {
+                    arg2.type = InstructionArgType::REG;
+                    arg2.size = 8;
+                    arg2.isSigned = false;
+                    arg2.value = sym.arg2.value;
+                }
+
+                assem.insertInstruction(sym.instr, arg1, arg2);
+            }
+        }
+    }
+
+    assem.dumpMemory(filePath);
 
     return;
 }

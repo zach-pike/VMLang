@@ -1,5 +1,5 @@
 main(256):
 push u8(10)
-pop %a
-add %a, u8(10)
+push u8(10)
+addStack
 halt

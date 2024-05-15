@@ -36,6 +36,8 @@ public:
     void setU16(std::uint64_t address, std::uint16_t value);
     void setU32(std::uint64_t address, std::uint32_t value);
     void setU64(std::uint64_t address, std::uint64_t value);
+
+    void loadFromFile(std::string fp);
 };
 
 
