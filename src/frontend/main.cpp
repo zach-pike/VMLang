@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
         SystemMemory& mem = vm.getMemory();
         Stack&      stack = vm.getStack();
 
-        mem.loadFromFile("/home/zachary/VMLang/programs/a.vmc");
+        mem.loadFromFile(programArgs.get("-d"));
 
         while(true) {
             printf("> ");
