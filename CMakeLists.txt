@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(MyArch)
+project(VMLang)
 
 include(CTest)
 
@@ -14,6 +14,10 @@ add_executable(frontend ${EMUAPPSRC})
 
 target_link_libraries(frontend emu)
 
+add_executable(stacktest src/test/stacktest.cpp)
+target_link_libraries(stacktest emu)
+add_test(NAME StackTest COMMAND stacktest)
 
-add_executable(test1 src/test/test1.cpp)
-add_test(NAME Test1 COMMAND test1)
+add_executable(fibtest src/test/fibtest.cpp)
+target_link_libraries(fibtest emu)
+add_test(NAME FibTest COMMAND fibtest)

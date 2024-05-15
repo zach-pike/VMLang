@@ -2,12 +2,26 @@
 #include "lib/compiler/compiler.hpp"
 #include "lib/errors/errors.hpp"
 
+#include "lib/compiler/lexer/lexer.hpp"
+
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 int main() {
+    Compiler compiler;
+
+    compiler.parseFile("/home/zachary/Desktop/myarch/programs/a.vm");
+
+    compiler.compileAndWriteBinary("/home/zachary/Desktop/myarch/programs/a.vmc");
+
+    return 0;
+}
+
+/*
     BuiltinCompiler compiler;
 
     compiler.setInsertOffset(0x100);
@@ -51,4 +65,4 @@ int main() {
     }
 
     return 0;
-}
+*/
