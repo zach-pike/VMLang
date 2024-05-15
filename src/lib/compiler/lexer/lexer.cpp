@@ -1,5 +1,20 @@
 #include "lexer.hpp"
 
+#include <algorithm>
+
+static inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+// trim from end (in place)
+static inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
 std::vector<LexerToken> tokenizeString(std::ifstream& content) {
     std::vector<LexerToken> tokens;
 
@@ -16,6 +31,11 @@ std::vector<LexerToken> tokenizeString(std::ifstream& content) {
 
     std::string line;
     while(std::getline(content, line)) {
+        // Trim the line of spaces and whitespace first
+        ltrim(line);
+        rtrim(line);
+
+        if (line.size() == 0) continue;
 
         for (char c : line) {
             if (isspace(c)) {

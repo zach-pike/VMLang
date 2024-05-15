@@ -1,6 +1,9 @@
 main(256):
 push u8(30)
 push u8(50)
+
 subStack
+
 dump
+
 halt
