@@ -1,6 +1,6 @@
 main(256):
-push u8(10)
-push u8(10)
-addStack
+push u8(30)
+push u8(50)
+subStack
 dump
 halt

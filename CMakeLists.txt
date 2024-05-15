@@ -4,20 +4,21 @@ project(VMLang)
 
 include(CTest)
 
+include_directories(argparse/include)
 include_directories(src/)
 
-file(GLOB_RECURSE LIBEMUSRC src/lib/*.cpp)
-file(GLOB_RECURSE EMUAPPSRC src/frontend/*.cpp)
+file(GLOB_RECURSE LIBVMSRC src/lib/*.cpp)
+file(GLOB_RECURSE VMFRONTENDSRC src/frontend/*.cpp)
 
-add_library(emu SHARED ${LIBEMUSRC})
-add_executable(frontend ${EMUAPPSRC})
+add_library(vm SHARED ${LIBVMSRC})
+add_executable(vmcl ${VMFRONTENDSRC})
 
-target_link_libraries(frontend emu)
+target_link_libraries(vmcl vm)
 
 add_executable(stacktest src/test/stacktest.cpp)
-target_link_libraries(stacktest emu)
+target_link_libraries(stacktest vm)
 add_test(NAME StackTest COMMAND stacktest)
 
 add_executable(fibtest src/test/fibtest.cpp)
-target_link_libraries(fibtest emu)
+target_link_libraries(fibtest vm)
 add_test(NAME FibTest COMMAND fibtest)

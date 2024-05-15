@@ -4,6 +4,8 @@
 
 #include "lib/compiler/lexer/lexer.hpp"
 
+#include "argparse/argparse.hpp"
+
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,92 +13,102 @@
 #include <fstream>
 #include <sstream>
 
-int main() {
-    Compiler compiler;
+int main(int argc, char** argv) {
+    argparse::ArgumentParser programArgs("vmcl");
 
-    compiler.parseFile("/home/zachary/Desktop/myarch/programs/a.vm");
-    compiler.compileAndWriteBinary("/home/zachary/Desktop/myarch/programs/a.vmc");
+    programArgs.add_argument("-r")
+        .help("File to run in VM");
+    programArgs.add_argument("--debugLog")
+        .help("Print debug log statements")
+        .default_value(false)
+        .flag();
+    programArgs.add_argument("-d")
+        .help("Debug a program");
+    programArgs.add_argument("-c")
+        .help("Compile a program file")
+        .nargs(argparse::nargs_pattern::at_least_one);
+    programArgs.add_argument("-o")
+        .help("Set a output file for compilation");
 
-    VM vm;
-    vm.initializeVM();          // Initialize memory and stack
+    try {
+        programArgs.parse_args(argc, argv);
+    } catch(std::exception& err) {
+        std::cerr << err.what() << std::endl;
+        std::cerr << programArgs;
+        exit(1);
+    }
 
-    // Get reference to mem and stack
-    SystemMemory& mem = vm.getMemory();
-    Stack&      stack = vm.getStack();
+    bool printDebug = programArgs.get<bool>("--debugLog");
 
-    mem.loadFromFile("/home/zachary/Desktop/myarch/programs/a.vmc");
+    if (programArgs.is_used("-r")) {
+        VM vm;
 
-    while(true) {
-        printf("> ");
+        vm.initializeVM();
 
-        char c;
-        std::cin >> c;
+        // Get reference to mem and stack
+        SystemMemory& mem = vm.getMemory();
+        Stack&      stack = vm.getStack();
 
-        switch(c) {
-            case 's': {
-                try {
-                    vm.stepExecution(true);
-                } catch(ArgumentException e) {
-                    std::cout << "Error in execution! ArgumentException! what()->\"" << e.what() << "\"\n";
-                }
-            } break;
-            case 'd': {
-                // Dump registers and stack
-                vm.dumpEverything();
-            } break;
-            case 'r': {
-                while(!vm.stepExecution(true));
-            } break;
+        mem.loadFromFile(programArgs.get("-r"));
 
-            case 'q': exit(0);
+        try {
+            while(!vm.stepExecution(printDebug));
+        } catch(ArgumentException e) {
+            std::cout << "Error in execution! ArgumentException! what()->\"" << e.what() << "\"\n";
+        }
+
+    } else if (programArgs.is_used("-c")) {
+        // Compile program
+        auto files = programArgs.get<std::vector<std::string>>("-c");
+
+        Compiler compiler;
+
+        for (const auto& file : files) {
+            compiler.parseFile(file);
+        }
+
+        compiler.compileAndWriteBinary(programArgs.get("-o"));
+    } else if (programArgs.is_used("-d")) {
+        VM vm;
+        vm.initializeVM();          // Initialize memory and stack
+
+        // Get reference to mem and stack
+        SystemMemory& mem = vm.getMemory();
+        Stack&      stack = vm.getStack();
+
+        mem.loadFromFile("/home/zachary/VMLang/programs/a.vmc");
+
+        while(true) {
+            printf("> ");
+
+            char c;
+            std::cin >> c;
+
+            switch(c) {
+                case 's': {
+                    try {
+                        vm.stepExecution(true);
+                    } catch(ArgumentException e) {
+                        std::cout << "Error in execution! ArgumentException! what()->\"" << e.what() << "\"\n";
+                    }
+                } break;
+                case 'd': {
+                    // Dump registers and stack
+                    vm.dumpEverything();
+                } break;
+                case 'r': {
+                    try {
+                        while(!vm.stepExecution(true));
+                    } catch(ArgumentException e) {
+                        std::cout << "Error in execution! ArgumentException! what()->\"" << e.what() << "\"\n";
+                    }
+                } break;
+
+                case 'q': exit(0);
+            }
         }
     }
+
 
     return 0;
 }
-
-/*
-    BuiltinCompiler compiler;
-
-    compiler.setInsertOffset(0x100);
-
-    compiler.insertInstruction(Instructions::Push, InstructionArg(InstructionArgType::IMM, 8, 2000, false));
-    compiler.insertInstruction(Instructions::Push, InstructionArg(InstructionArgType::IMM, 8, 2000, false));
-    compiler.insertInstruction(Instructions::AddStack);
-    compiler.insertInstruction(Instructions::Halt);
-
-    VM vm;
-    vm.initializeVM();          // Initialize memory and stack
-
-    // Get reference to mem and stack
-    SystemMemory& mem = vm.getMemory();
-    Stack&      stack = vm.getStack();
-
-    // Copy program to system ram
-    memcpy(mem.getRaw(), compiler.getRaw(), VM_MEMORY_SIZE);
-
-    while(true) {
-        printf("> ");
-
-        char c;
-        std::cin >> c;
-
-        switch(c) {
-            case 's': {
-                try {
-                    vm.stepExecution(true);
-                } catch(ArgumentException e) {
-                    std::cout << "Error in execution! ArgumentException! what()->\"" << e.what() << "\"\n";
-                }
-            } break;
-            case 'd': {
-                // Dump registers and stack
-                vm.dumpEverything();
-            } break;
-
-            case 'q': exit(0);
-        }
-    }
-
-    return 0;
-*/

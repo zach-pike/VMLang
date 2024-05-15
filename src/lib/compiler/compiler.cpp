@@ -152,15 +152,15 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
                 assert((tokens.at(i).type == TokenType::LITERAL));
 
                 currentLabel = tokens.at(i).value;
-                std::cout << "Switching to label: " << currentLabel << "...\n";
 
                 // Parse offset
                 assert((tokens.at(i + 2).type == TokenType::LITERAL));
                 std::uint64_t address = std::stoull(tokens.at(i + 2).value);
-                std::cout << "with a offset of " << address << '\n';
 
+                // Store label address
                 labelAddresses.insert({ currentLabel, address });
 
+                // Jump over rest of label tokens
                 i += labelDefOrder.size() - 1;
                 continue;
             }
