@@ -107,6 +107,8 @@ int main(int argc, char** argv) {
                 case 'q': exit(0);
             }
         }
+    } else {
+        std::cout << programArgs;
     }
 
 
