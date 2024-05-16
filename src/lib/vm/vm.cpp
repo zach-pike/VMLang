@@ -108,7 +108,18 @@ bool VM::stepExecution(bool debug) {
         } break;
 
         case Instructions::Move: {
-            // std::uint64_t valToMove = 
+            VMValue val = getVariableFromInstructionArg(arg1);
+            
+            assert((arg2.type == InstructionArgType::REGISTER));
+            regs.setReg((VMReg)arg2.var.value.uInt, val);
+        } break;
+
+        case Instructions::Jump: {
+            VMValue val = getVariableFromInstructionArg(arg1);
+            assert((val.vartype == VMValueType::UINT && val.size == 8));
+            regs.ip = val.value.uInt;
+
+            ipIncreases = false;
         } break;
     }
 

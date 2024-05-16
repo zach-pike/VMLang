@@ -173,8 +173,8 @@ std::ostream& operator<<(std::ostream &out, VMValue const& a) {
     }
 
     switch(a.vartype) {
-        case VMValueType::UINT:   out << 'u' << (int)a.size*8 << '(' << a.value.uInt; break;
-        case VMValueType::SINT:   out << 's' << (int)a.size*8 << '(' << a.value.sInt; break;
+        case VMValueType::UINT:   out << 'u' << (int)a.size*8 << '(' << std::to_string(a.value.uInt); break;
+        case VMValueType::SINT:   out << 's' << (int)a.size*8 << '(' << std::to_string(a.value.sInt); break;
         case VMValueType::DOUBLE: out << "double" << '(' << a.value.doubleVal;        break;
     }
 

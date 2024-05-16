@@ -45,7 +45,7 @@ enum class Instructions : std::uint8_t {
 
 inline std::vector<std::string> getInstructionNames() {
     return {
-        "noOp",
+        "nop",
         "halt",
         "push",
         "pop",

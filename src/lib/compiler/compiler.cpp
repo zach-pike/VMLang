@@ -149,20 +149,10 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
         TokenType::EOL
     };
 
-    std::map<std::string, Instructions> instructionLookupTable = {
-        { "NOP", Instructions::NOP },
-        { "halt", Instructions::Halt },
-        { "push", Instructions::Push },
-        { "pop", Instructions::Pop },
-        { "add", Instructions::Add },
-        { "addStack", Instructions::AddStack },
-        { "sub", Instructions::Sub },
-        { "subStack", Instructions::SubStack },
-        { "dump", Instructions::Dump }
-    };
-
     // Start the loop of trying to find a label definition and reading the instructions in
     std::string currentLabel = "";
+
+    auto instructionNames = getInstructionNames();
 
     for (int i=0; i<tokens.size(); i++) {
         // Check for label def if we wont overrun the tokens array
@@ -200,7 +190,18 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
 
         // Parse instruction
         assert((nameToken.type == TokenType::LITERAL));
-        Instructions instr = instructionLookupTable.at(nameToken.value);
+
+        auto it = std::find(
+            instructionNames.begin(),
+            instructionNames.end(),
+            nameToken.value
+        );
+
+        if (it == instructionNames.end()) {
+            throw std::runtime_error("No such instruction " + nameToken.value);
+        }
+
+        Instructions instr = (Instructions)(it - instructionNames.begin());
 
         // Parse args if possible
 

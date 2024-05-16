@@ -1,4 +1,14 @@
 main(256):
-push %ip
+add %ip, u8(100)
+push u8(10)
+push u8(20)
+jump $testSect
 dump
 halt
+
+testSect(1000):
+addStack
+pop %a
+pop %b
+push %a
+jump %b
