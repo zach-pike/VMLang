@@ -28,29 +28,29 @@ void Stack::dump() const {
 
         // Print the item
         std::string s;
-        s.append("Stack item (");
+        s.append("Stack item ");
 
         switch (itm.vartype) {
             case VMVariableType::UINT: {
-                s.push_back('U');
-                s.append(std::to_string(itm.size));
-                s.append("): ");
+                s.push_back('u');
+                s.append(std::to_string(itm.size * 8));
+                s.push_back('(');
                 s.append(std::to_string(itm.value.uInt));
+                s.push_back(')');
             } break;
             case VMVariableType::SINT: {
-                s.push_back('S');
-                s.append(std::to_string(itm.size));
-                s.append("): ");
+                s.push_back('s');
+                s.append(std::to_string(itm.size * 8));
+                s.push_back('(');
                 s.append(std::to_string(itm.value.sInt));
-            } break;
-            case VMVariableType::FLOAT: {
-                s.append("Float): ");
-                s.append(std::to_string(itm.value.floatVal));
+                s.push_back(')');
             } break;
             case VMVariableType::DOUBLE: {
-                s.append("Float): ");
+                s.append("double(");
                 s.append(std::to_string(itm.value.doubleVal));
+                s.push_back(')');
             } break;
+            default: throw std::runtime_error("what the fuck");
         }
 
         std::cout << s << '\n';

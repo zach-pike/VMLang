@@ -8,7 +8,6 @@
 enum class VMVariableType : std::uint8_t {
     UINT,
     SINT,
-    FLOAT,
     DOUBLE
 };
 
@@ -22,7 +21,6 @@ struct VMVariableDatatype {
         std::uint64_t uInt;
         std::int64_t  sInt;
 
-        float         floatVal;
         double        doubleVal;
     } value;
 
@@ -40,7 +38,6 @@ struct VMVariableDatatype {
     VMVariableDatatype(std::uint64_t);
     VMVariableDatatype(std::int64_t);
 
-    VMVariableDatatype(float);
     VMVariableDatatype(double);
 
     VMVariableDatatype operator+(const VMVariableDatatype& rhs);

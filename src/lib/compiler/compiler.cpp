@@ -92,24 +92,6 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
         assert((valueToken.type == TokenType::LITERAL));
 
         var.value.sInt = std::stoll(valueToken.value);
-    } else if (firstToken.value.rfind("float", 0) == 0) {
-        strValue = "";
-        type = PrecompiledInstructionArgumentType::NUMBER;
-
-        // Initialize value
-        var = VMVariableDatatype();
-        var.isUninitialized = false;
-        var.vartype = VMVariableType::FLOAT;
-        var.size = sizeof(float);
-
-        // Assert that there is parens around number
-        assert((tokens.at(1).type == TokenType::LEFT_PAREN));
-        assert((tokens.at(3).type == TokenType::RIGHT_PAREN));
-
-        LexerToken valueToken = tokens.at(2);
-        assert((valueToken.type == TokenType::LITERAL));
-
-        var.value.floatVal = std::stof(valueToken.value);
     } else if (firstToken.value.rfind("double", 0) == 0) {
         strValue = "";
         type = PrecompiledInstructionArgumentType::NUMBER;
