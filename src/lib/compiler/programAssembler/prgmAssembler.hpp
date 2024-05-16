@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <stdio.h>
 
-#include "lib/vm.hpp"
+#include "vm/instruction/instruction.hpp"
 
 class ProgramAssembler {
 private:

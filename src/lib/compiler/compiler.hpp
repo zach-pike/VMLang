@@ -3,8 +3,9 @@
 #include <cstdint>
 #include <map>
 
-#include "lib/vm.hpp"
-#include "lib/variable/variable.hpp"
+#include "vm/value/value.hpp"
+#include "vm/instruction/instruction.hpp"
+
 #include "lexer/lexer.hpp"
 
 class Compiler {

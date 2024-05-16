@@ -1,4 +1,4 @@
-#include "variable.hpp"
+#include "value.hpp"
 
 VMValue::VMValue():
     isUninitialized(true) {}

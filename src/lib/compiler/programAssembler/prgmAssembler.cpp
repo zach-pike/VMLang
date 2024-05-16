@@ -5,6 +5,8 @@
 #include <iostream>
 #include <fstream>
 
+#define VM_MEMORY_SIZE 1000000
+
 ProgramAssembler::ProgramAssembler() {
     data = new std::uint8_t[VM_MEMORY_SIZE];
     insertPointer = data;

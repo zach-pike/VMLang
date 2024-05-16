@@ -5,7 +5,7 @@ project(VMLang)
 include(CTest)
 
 include_directories(argparse/include)
-include_directories(src/)
+include_directories(src/lib/)
 
 file(GLOB_RECURSE LIBVMSRC src/lib/*.cpp)
 file(GLOB_RECURSE VMFRONTENDSRC src/frontend/*.cpp)

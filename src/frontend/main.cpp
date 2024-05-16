@@ -1,8 +1,8 @@
-#include "lib/vm.hpp"
-#include "lib/compiler/compiler.hpp"
-#include "lib/errors/errors.hpp"
+#include "vm/vm.hpp"
+#include "compiler/compiler.hpp"
+#include "vm/errors/errors.hpp"
 
-#include "lib/compiler/lexer/lexer.hpp"
+#include "compiler/lexer/lexer.hpp"
 
 #include "argparse/argparse.hpp"
 

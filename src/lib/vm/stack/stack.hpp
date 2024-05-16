@@ -3,7 +3,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "lib/variable/variable.hpp"
+#include "vm/value/value.hpp"
 
 class Stack {
 private:
