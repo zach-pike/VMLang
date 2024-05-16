@@ -107,7 +107,61 @@ VMValue VMValue::operator+(const VMValue& rhs) {
 }
 
 VMValue VMValue::operator-(const VMValue& rhs) {
+    if ((vartype == VMValueType::SINT || vartype == VMValueType::UINT)
+     && (rhs.vartype == VMValueType::SINT || rhs.vartype == VMValueType::UINT)) {
 
+        bool resultSigned = (vartype == VMValueType::SINT) || (rhs.vartype == VMValueType::SINT);
+
+        if (resultSigned) {
+            // Try to read both values as signed value
+            std::int64_t v1;
+            std::int64_t v2;
+
+            if (vartype == VMValueType::UINT)
+                v1 = value.uInt; // Cast to signed number
+            else
+                v1 = value.sInt;
+
+            if (rhs.vartype == VMValueType::UINT)
+                v2 = rhs.value.uInt;
+            else
+                v2 = rhs.value.sInt;
+
+            std::int64_t diff = v1 - v2;
+
+            auto v = VMValue();
+            v.isUninitialized = false;
+            v.value.sInt = diff;
+            v.size = std::max(size, rhs.size);
+            v.vartype = VMValueType::SINT;
+            return v;
+        } else {
+            std::uint64_t diff = value.uInt - rhs.value.uInt;
+
+            auto v = VMValue();
+            v.isUninitialized = false;
+            v.value.uInt = diff;
+            v.size = std::max(size, rhs.size);
+            v.vartype = VMValueType::UINT;
+            return v;
+        }
+    } else {
+        double result = 0;
+
+        switch(vartype) {
+            case VMValueType::UINT: result = (double)value.uInt; break;
+            case VMValueType::SINT: result = (double)value.sInt; break;
+            case VMValueType::DOUBLE: result = value.doubleVal; break;
+        }
+
+        switch(rhs.vartype) {
+            case VMValueType::UINT: result -= (double)rhs.value.uInt; break;
+            case VMValueType::SINT: result -= (double)rhs.value.sInt; break;
+            case VMValueType::DOUBLE: result -= rhs.value.doubleVal; break;
+        }
+
+        return VMValue(result);
+    }
 }
 
 std::ostream& operator<<(std::ostream &out, VMValue const& a) {

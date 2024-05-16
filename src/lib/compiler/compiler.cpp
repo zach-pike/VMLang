@@ -46,8 +46,6 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
         strValue = "";
         var = VMValue(regNum);
         type = PrecompiledInstructionArgumentType::REGISTER;
-
-
     } else if (firstToken.value.rfind('$', 0) == 0) {
         strValue = firstToken.value.substr(1);
         var = VMValue();
@@ -303,13 +301,21 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
             if (sym.arg1.type == PrecompiledInstructionArgumentType::LABEL_ADDRESS) {
                 arg1 = InstructionArg(labelAddresses.at(sym.arg1.strValue));
             } else {
-                arg1 = sym.arg1.var;
+
+                if (sym.arg1.type == PrecompiledInstructionArgumentType::REGISTER)
+                    arg1.type = InstructionArgType::REGISTER;
+
+                arg1.var = sym.arg1.var;
             }
 
             if (sym.arg2.type == PrecompiledInstructionArgumentType::LABEL_ADDRESS) {
                 arg2 = InstructionArg(labelAddresses.at(sym.arg2.strValue));
             } else {
-                arg2 = sym.arg2.var;
+
+                if (sym.arg2.type == PrecompiledInstructionArgumentType::REGISTER)
+                    arg2.type = InstructionArgType::REGISTER;
+
+                arg2.var = sym.arg2.var;
             }
 
             assem.insertInstruction(sym.instr, arg1, arg2);

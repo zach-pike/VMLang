@@ -1,6 +1,4 @@
 main(256):
-push u8(10)
-push double(20.4)
-addStack
+push %ip
 dump
 halt
