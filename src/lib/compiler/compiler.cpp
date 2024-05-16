@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "programAssembler/prgmAssembler.hpp"
+#include "vm/registers/registers.hpp"
 
 Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
     std::string _strval,
@@ -23,21 +24,12 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
     assert((tokens.size() > 0));
     assert((tokens.at(0).type == TokenType::LITERAL));
 
-
     LexerToken firstToken = tokens.at(0);
 
     if (firstToken.value.rfind('%', 0) == 0) {
         // Get the char after the percent
         assert((firstToken.value.size() > 1));
-
-        std::vector<std::string> regs = {
-            "a",
-            "b",
-            "c",
-            "d",
-            "ip"
-        };
-
+        std::vector<std::string> regs = getRegNames();
         std::string s = firstToken.value.substr(1);
 
         std::uint64_t regNum = std::find(regs.begin(), regs.end(), s) - regs.begin();

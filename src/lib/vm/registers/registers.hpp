@@ -14,6 +14,16 @@ enum class VMReg : std::uint8_t {
     IP = 4
 };
 
+inline std::vector<std::string> getRegNames() {
+    return {
+        "a",
+        "b",
+        "c",
+        "d",
+        "ip"
+    };
+}
+
 struct VMRegs {
     // General registers
     VMValue a;
@@ -26,13 +36,3 @@ struct VMRegs {
     VMValue getReg(VMReg) const;
     void               setReg(VMReg, VMValue);
 };
-
-inline std::vector<std::string> getRegNames() {
-    return {
-        "a",
-        "b",
-        "c",
-        "d",
-        "ip"
-    };
-}

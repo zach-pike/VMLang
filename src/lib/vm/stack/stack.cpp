@@ -21,38 +21,8 @@ VMValue Stack::peek() const {
 }
 
 void Stack::dump() const {
-    // Iterate backwards thru list
-
-    for (int i=stack.size()-1; i >= 0; i--) {
-        VMValue itm = stack.at(i);
-
+    for (const VMValue& itm : stack) {
         // Print the item
-        std::string s;
-        s.append("Stack item ");
-
-        switch (itm.vartype) {
-            case VMValueType::UINT: {
-                s.push_back('u');
-                s.append(std::to_string(itm.size * 8));
-                s.push_back('(');
-                s.append(std::to_string(itm.value.uInt));
-                s.push_back(')');
-            } break;
-            case VMValueType::SINT: {
-                s.push_back('s');
-                s.append(std::to_string(itm.size * 8));
-                s.push_back('(');
-                s.append(std::to_string(itm.value.sInt));
-                s.push_back(')');
-            } break;
-            case VMValueType::DOUBLE: {
-                s.append("double(");
-                s.append(std::to_string(itm.value.doubleVal));
-                s.push_back(')');
-            } break;
-            default: throw std::runtime_error("what the fuck");
-        }
-
-        std::cout << s << '\n';
+        std::cout << "Stack item: " << itm << '\n';
     }
 }

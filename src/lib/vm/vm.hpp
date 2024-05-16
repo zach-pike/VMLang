@@ -15,8 +15,14 @@ private:
 
     // System RAM
     SystemMemory memory;
+
+    // Stack
     Stack stack;
 
+    // Takes a InstructionArg and converts it to a value
+    // If arg is a NUMBER then return value is arg.var
+    // If arg is a REGISTER then return value is the value
+    // of the register index supplied
     VMValue getVariableFromInstructionArg(InstructionArg arg);
 public:
     VM();
