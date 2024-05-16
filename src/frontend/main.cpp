@@ -1,14 +1,14 @@
 #include "vm/vm.hpp"
 #include "compiler/compiler.hpp"
 #include "vm/errors/errors.hpp"
-
-#include "compiler/lexer/lexer.hpp"
-
 #include "argparse/argparse.hpp"
 
-#include "string.h"
+#include "iommio/iommio.hpp"
+
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -50,6 +50,8 @@ int main(int argc, char** argv) {
         Stack&      stack = vm.getStack();
 
         mem.loadFromFile(programArgs.get("-r"));
+
+        mem.addMMIODevice(std::make_shared<IOmmio>(0));
 
         try {
             while(!vm.stepExecution(printDebug));

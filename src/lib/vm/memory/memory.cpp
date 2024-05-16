@@ -55,7 +55,7 @@ void SystemMemory::setU8(std::uint64_t address, std::uint8_t value) {
 
         if (address >= range.startAddress && address < range.endAddress) {
             // Address handled by MMIO device
-            return dev->onWrite(address, value);
+            return dev->onWrite(value, address);
         }
     }
 
