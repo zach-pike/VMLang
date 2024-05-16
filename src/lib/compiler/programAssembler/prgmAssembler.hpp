@@ -7,15 +7,12 @@
 
 class ProgramAssembler {
 private:
-    std::uint8_t* data;
-    std::uint8_t* insertPointer;
+    std::vector<std::uint8_t> programData;
 public:
     ProgramAssembler();
     ~ProgramAssembler();
 
-    std::uint8_t* getRaw();
-
-    void setInsertOffset(std::uint64_t offset);
+    // void setInsertOffset(std::uint64_t offset);
 
     void insertInstruction(Instructions opcode);
     void insertInstruction(Instructions opcode, InstructionArg arg1);

@@ -28,7 +28,7 @@ public:
     VM();
     ~VM();
 
-    void initializeVM(std::uint64_t execStartAddr = 0x100);
+    void initializeVM(std::uint64_t execStartAddr = 0x0);
     bool stepExecution(bool debug);
 
     SystemMemory& getMemory();

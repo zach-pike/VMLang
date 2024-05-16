@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 
         mem.loadFromFile(programArgs.get("-r"));
 
-        mem.addMMIODevice(std::make_shared<IOmmio>(0));
+        mem.addMMIODevice(std::make_shared<IOmmio>(1337));
 
         try {
             while(!vm.stepExecution(printDebug));

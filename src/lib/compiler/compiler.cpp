@@ -129,14 +129,14 @@ void Compiler::parseFile(std::string fp) {
 }
 
 void Compiler::compileAndWriteBinary(std::string filePath) {
-    std::map<std::string, std::uint64_t> labelAddresses;
-    std::map<std::string, std::vector<PrecompiledInstruction>> symbols;
+    std::map<std::string, std::vector<PrecompiledInstruction>> sections;
+    std::vector<std::string> sectionOrder;
 
     std::vector<TokenType> labelDefOrder = {
         TokenType::LITERAL,
-        TokenType::LEFT_PAREN,
-        TokenType::LITERAL,
-        TokenType::RIGHT_PAREN,
+        // TokenType::LEFT_PAREN,
+        // TokenType::LITERAL,
+        // TokenType::RIGHT_PAREN,
         TokenType::COLON,
         TokenType::EOL
     };
@@ -163,13 +163,14 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
                 assert((tokens.at(i).type == TokenType::LITERAL));
 
                 currentLabel = tokens.at(i).value;
+                sectionOrder.push_back(currentLabel);
 
                 // Parse offset
-                assert((tokens.at(i + 2).type == TokenType::LITERAL));
-                std::uint64_t address = std::stoull(tokens.at(i + 2).value);
+                // assert((tokens.at(i + 2).type == TokenType::LITERAL));
+                // std::uint64_t address = std::stoull(tokens.at(i + 2).value);
 
-                // Store label address
-                labelAddresses.insert({ currentLabel, address });
+                // // Store label address
+                // labelAddresses.insert({ currentLabel, address });
 
                 // Jump over rest of label tokens
                 i += labelDefOrder.size() - 1;
@@ -199,7 +200,7 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
 
         // If next token is a EOL then this instruction is done
         if (tokens.at(i + 1).type == TokenType::EOL) {
-            symbols[currentLabel].push_back(
+            sections[currentLabel].push_back(
                 PrecompiledInstruction(
                     instr,
                     PrecompiledInstructionArgument(),
@@ -233,7 +234,7 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
         
         if (!hasArg2) {
             // We are done
-            symbols[currentLabel].push_back(
+            sections[currentLabel].push_back(
                 PrecompiledInstruction(
                     instr,
                     arg1,
@@ -258,7 +259,7 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
         PrecompiledInstructionArgument arg2(arg2Tokens);
 
         // Okay now were really done
-        symbols[currentLabel].push_back(
+        sections[currentLabel].push_back(
             PrecompiledInstruction(
                 instr,
                 arg1,
@@ -276,42 +277,47 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
 
     ProgramAssembler assem;
 
-    assert((labelAddresses.size() > 0));
+    assert((sections.size() > 0));
 
-    std::map<std::string, std::uint64_t>::iterator it;
+    std::map<std::string, std::uint64_t> labelAddresses;
 
-    for (it = labelAddresses.begin(); it != labelAddresses.end(); it++) {
-        // Start inserting instructions at address required
-        assem.setInsertOffset(it->second);
+    std::uint64_t currentAddress = 0;
+    for (const auto& sectName : sectionOrder) {
+        const auto& symbol = sections.at(sectName);
 
-        // Lookup the symbols and insert each one
-        auto symbolList = symbols.at(it->first);
+        std::uint64_t sectSize = symbol.size() * ( 1 + sizeof(InstructionArg) * 2);
+        labelAddresses[sectName] = currentAddress;
+        currentAddress += sectSize;
+    }
 
-        for (const auto& sym : symbolList) {
+    for (const auto& sectName : sectionOrder) {
+        const auto& currentSection = sections.at(sectName);
+
+        for (const auto& instr : currentSection) {
             InstructionArg arg1;
             InstructionArg arg2;
 
-            if (sym.arg1.type == PrecompiledInstructionArgumentType::LABEL_ADDRESS) {
-                arg1 = InstructionArg(labelAddresses.at(sym.arg1.strValue));
+            if (instr.arg1.type == PrecompiledInstructionArgumentType::LABEL_ADDRESS) {
+                arg1 = InstructionArg(labelAddresses.at(instr.arg1.strValue));
             } else {
 
-                if (sym.arg1.type == PrecompiledInstructionArgumentType::REGISTER)
+                if (instr.arg1.type == PrecompiledInstructionArgumentType::REGISTER)
                     arg1.type = InstructionArgType::REGISTER;
 
-                arg1.var = sym.arg1.var;
+                arg1.var = instr.arg1.var;
             }
 
-            if (sym.arg2.type == PrecompiledInstructionArgumentType::LABEL_ADDRESS) {
-                arg2 = InstructionArg(labelAddresses.at(sym.arg2.strValue));
+            if (instr.arg2.type == PrecompiledInstructionArgumentType::LABEL_ADDRESS) {
+                arg2 = InstructionArg(labelAddresses.at(instr.arg2.strValue));
             } else {
 
-                if (sym.arg2.type == PrecompiledInstructionArgumentType::REGISTER)
+                if (instr.arg2.type == PrecompiledInstructionArgumentType::REGISTER)
                     arg2.type = InstructionArgType::REGISTER;
 
-                arg2.var = sym.arg2.var;
+                arg2.var = instr.arg2.var;
             }
 
-            assem.insertInstruction(sym.instr, arg1, arg2);
+            assem.insertInstruction(instr.instr, arg1, arg2);
         }
     }
 
