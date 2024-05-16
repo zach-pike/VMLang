@@ -1,4 +1,6 @@
 main(256):
-push u16(420)
+push u8(10)
+push double(20.4)
+addStack
 dump
 halt

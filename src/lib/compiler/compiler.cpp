@@ -9,7 +9,7 @@
 
 Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
     std::string _strval,
-    VMVariableDatatype _var,
+    VMValue _var,
     PrecompiledInstructionArgumentType _type
 ):
     strValue(_strval),
@@ -44,13 +44,13 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
 
         // initialize struct
         strValue = "";
-        var = VMVariableDatatype(regNum);
+        var = VMValue(regNum);
         type = PrecompiledInstructionArgumentType::REGISTER;
 
 
     } else if (firstToken.value.rfind('$', 0) == 0) {
         strValue = firstToken.value.substr(1);
-        var = VMVariableDatatype();
+        var = VMValue();
         type = PrecompiledInstructionArgumentType::LABEL_ADDRESS;
     } else if (firstToken.value.rfind('u', 0) == 0) {
         std::uint8_t sizeBytes = std::stoi(firstToken.value.substr(1)) / 8;
@@ -59,9 +59,9 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
         type = PrecompiledInstructionArgumentType::NUMBER;
 
         // Initialize value
-        var = VMVariableDatatype();
+        var = VMValue();
         var.isUninitialized = false;
-        var.vartype = VMVariableType::UINT;
+        var.vartype = VMValueType::UINT;
         var.size = sizeBytes;
 
         // Assert that there is parens around number
@@ -79,9 +79,9 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
         type = PrecompiledInstructionArgumentType::NUMBER;
 
         // Initialize value
-        var = VMVariableDatatype();
+        var = VMValue();
         var.isUninitialized = false;
-        var.vartype = VMVariableType::SINT;
+        var.vartype = VMValueType::SINT;
         var.size = sizeBytes;
 
         // Assert that there is parens around number
@@ -97,9 +97,9 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
         type = PrecompiledInstructionArgumentType::NUMBER;
 
         // Initialize value
-        var = VMVariableDatatype();
+        var = VMValue();
         var.isUninitialized = false;
-        var.vartype = VMVariableType::DOUBLE;
+        var.vartype = VMValueType::DOUBLE;
         var.size = sizeof(double);
 
         // Assert that there is parens around number

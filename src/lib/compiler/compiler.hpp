@@ -17,12 +17,12 @@ private:
 
     struct PrecompiledInstructionArgument {
         std::string strValue;
-        VMVariableDatatype var;
+        VMValue var;
         PrecompiledInstructionArgumentType type;
 
         PrecompiledInstructionArgument(
             std::string _sv = "",
-            VMVariableDatatype _var = VMVariableDatatype(),
+            VMValue _var = VMValue(),
             PrecompiledInstructionArgumentType tp = PrecompiledInstructionArgumentType::NUMBER);
     
         PrecompiledInstructionArgument(

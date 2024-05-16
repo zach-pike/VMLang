@@ -27,32 +27,32 @@ const char* regNames[] = {
     "IP"
 };
 
-VMVariableDatatype VMRegs::getReg(VMReg reg) const {
+VMValue VMRegs::getReg(VMReg reg) const {
     switch(reg) {
         case VMReg::A: return a;
         case VMReg::B: return b;
         case VMReg::C: return c;
         case VMReg::D: return d;
-        case VMReg::IP: return VMVariableDatatype(ip);
+        case VMReg::IP: return VMValue(ip);
         default: throw ArgumentException(0);
     }
 }
 
-void VMRegs::setReg(VMReg reg, VMVariableDatatype var) {
+void VMRegs::setReg(VMReg reg, VMValue var) {
     switch(reg) {
         case VMReg::A: a = var; break;
         case VMReg::B: b = var; break;
         case VMReg::C: c = var; break;
         case VMReg::D: d = var; break;
         case VMReg::IP: {
-            if (var.vartype != VMVariableType::UINT)
+            if (var.vartype != VMValueType::UINT)
                 throw ArgumentException(0);
             ip = var.value.uInt;
         } break;
     }
 }
 
-InstructionArg::InstructionArg(VMVariableDatatype _var, InstructionArgType _type):
+InstructionArg::InstructionArg(VMValue _var, InstructionArgType _type):
     var(_var),
     type(_type) {}
 
@@ -79,7 +79,7 @@ std::string InstructionArg::toString() const {
     return s;
 }
 
-VMVariableDatatype VM::getVariableFromInstructionArg(InstructionArg arg) {
+VMValue VM::getVariableFromInstructionArg(InstructionArg arg) {
     switch(arg.type) {
         case InstructionArgType::NUMBER: return arg.var;
         case InstructionArgType::REGISTER: return regs.getReg((VMReg)arg.var.value.uInt);
@@ -131,46 +131,46 @@ bool VM::stepExecution(bool debug) {
         } break;
 
         case Instructions::Push: {
-            VMVariableDatatype item = getVariableFromInstructionArg(arg1);
+            VMValue item = getVariableFromInstructionArg(arg1);
             stack.push(item);
         } break;
 
         case Instructions::Pop: {
             assert((arg1.type == InstructionArgType::REGISTER));
-            VMVariableDatatype item = stack.pop();
+            VMValue item = stack.pop();
 
             regs.setReg((VMReg)arg1.var.value.uInt, item);
         } break;
 
         case Instructions::Add: {
-            VMVariableDatatype numA = getVariableFromInstructionArg(arg1);
-            VMVariableDatatype numB = getVariableFromInstructionArg(arg2);
-            VMVariableDatatype sum = numA + numB;
+            VMValue numA = getVariableFromInstructionArg(arg1);
+            VMValue numB = getVariableFromInstructionArg(arg2);
+            VMValue sum = numA + numB;
             stack.push(sum);
         } break;
 
         case Instructions::AddStack: {
-            VMVariableDatatype itm1 = stack.pop();
-            VMVariableDatatype itm2 = stack.pop();
+            VMValue itm1 = stack.pop();
+            VMValue itm2 = stack.pop();
 
-            VMVariableDatatype sum = itm1 + itm2;
+            VMValue sum = itm1 + itm2;
             stack.push(sum);
         } break;
 
         case Instructions::Sub: {
-            VMVariableDatatype numA = getVariableFromInstructionArg(arg1);
-            VMVariableDatatype numB = getVariableFromInstructionArg(arg2);
+            VMValue numA = getVariableFromInstructionArg(arg1);
+            VMValue numB = getVariableFromInstructionArg(arg2);
 
-            VMVariableDatatype diff = numA - numB;
+            VMValue diff = numA - numB;
 
             stack.push(diff);
         } break;
 
         case Instructions::SubStack: {
-            VMVariableDatatype itm1 = stack.pop();
-            VMVariableDatatype itm2 = stack.pop();
+            VMValue itm1 = stack.pop();
+            VMValue itm2 = stack.pop();
 
-            VMVariableDatatype diff = itm1 - itm2;
+            VMValue diff = itm1 - itm2;
             stack.push(diff);
         } break;
 

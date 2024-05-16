@@ -16,15 +16,15 @@ enum class VMReg : std::uint8_t {
 
 struct VMRegs {
     // General registers
-    VMVariableDatatype a;
-    VMVariableDatatype b;
-    VMVariableDatatype c;
-    VMVariableDatatype d;
+    VMValue a;
+    VMValue b;
+    VMValue c;
+    VMValue d;
 
     std::uint64_t ip;  // Instruction Pointer
 
-    VMVariableDatatype getReg(VMReg) const;
-    void               setReg(VMReg, VMVariableDatatype);
+    VMValue getReg(VMReg) const;
+    void               setReg(VMReg, VMValue);
 };
 
 // This allow the InstructionArg class to represent all datatypes along with
@@ -34,10 +34,10 @@ enum class InstructionArgType : std::uint8_t {
 };
 
 struct InstructionArg {
-    VMVariableDatatype var;
+    VMValue var;
     InstructionArgType type;
 
-    InstructionArg(VMVariableDatatype var = VMVariableDatatype(), InstructionArgType type = InstructionArgType::NUMBER);
+    InstructionArg(VMValue var = VMValue(), InstructionArgType type = InstructionArgType::NUMBER);
     std::string toString() const;
 } __attribute__((packed));
 
@@ -72,7 +72,7 @@ private:
     SystemMemory memory;
     Stack stack;
 
-    VMVariableDatatype getVariableFromInstructionArg(InstructionArg arg);
+    VMValue getVariableFromInstructionArg(InstructionArg arg);
 public:
     VM();
     ~VM();

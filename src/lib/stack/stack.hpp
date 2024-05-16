@@ -7,14 +7,14 @@
 
 class Stack {
 private:
-    std::vector<VMVariableDatatype> stack;
+    std::vector<VMValue> stack;
 public:
     Stack();
     ~Stack();
 
-    void push(VMVariableDatatype item);
-    VMVariableDatatype pop();
-    VMVariableDatatype peek() const;
+    void push(VMValue item);
+    VMValue pop();
+    VMValue peek() const;
 
     void dump() const;
 };

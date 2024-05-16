@@ -5,14 +5,14 @@
 #include <ostream>
 #include <iostream>
 
-enum class VMVariableType : std::uint8_t {
+enum class VMValueType : std::uint8_t {
     UINT,
     SINT,
     DOUBLE
 };
 
-struct VMVariableDatatype {
-    VMVariableType vartype;
+struct VMValue {
+    VMValueType vartype;
     std::uint8_t   size;
 
     bool isUninitialized = false;
@@ -24,25 +24,25 @@ struct VMVariableDatatype {
         double        doubleVal;
     } value;
 
-    VMVariableDatatype();
+    VMValue();
 
-    VMVariableDatatype(std::uint8_t);
-    VMVariableDatatype(std::int8_t);
+    VMValue(std::uint8_t);
+    VMValue(std::int8_t);
 
-    VMVariableDatatype(std::uint16_t);
-    VMVariableDatatype(std::int16_t);
+    VMValue(std::uint16_t);
+    VMValue(std::int16_t);
 
-    VMVariableDatatype(std::uint32_t);
-    VMVariableDatatype(std::int32_t);
+    VMValue(std::uint32_t);
+    VMValue(std::int32_t);
 
-    VMVariableDatatype(std::uint64_t);
-    VMVariableDatatype(std::int64_t);
+    VMValue(std::uint64_t);
+    VMValue(std::int64_t);
 
-    VMVariableDatatype(double);
+    VMValue(double);
 
-    VMVariableDatatype operator+(const VMVariableDatatype& rhs);
-    VMVariableDatatype operator-(const VMVariableDatatype& rhs);
+    VMValue operator+(const VMValue& rhs);
+    VMValue operator-(const VMValue& rhs);
 
-    friend std::ostream& operator<<(std::ostream& os, VMVariableDatatype const& obj);
+    friend std::ostream& operator<<(std::ostream& os, VMValue const& obj);
 } __attribute__((packed));
 
