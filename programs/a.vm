@@ -1,14 +1,9 @@
 main(256):
-add %ip, u8(100)
-push u8(10)
-push u8(20)
-jump $testSect
+compareEq u8(20), u8(20)
+jumpIfEq $test
 dump
 halt
 
-testSect(1000):
-addStack
-pop %a
-pop %b
-push %a
-jump %b
+test(1000):
+storeByte u64(0), u8(96)
+halt

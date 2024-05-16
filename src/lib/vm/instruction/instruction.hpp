@@ -41,6 +41,14 @@ enum class Instructions : std::uint8_t {
 
     Move     = 9,
     Jump     = 10,
+
+    StoreByte = 11,
+    LoadByte  = 12,
+
+    CompareEq = 13,
+    CompareEqStack = 14,
+    JumpIfTrue  = 15,
+    JumpIfFalse = 16
 };
 
 inline std::vector<std::string> getInstructionNames() {
@@ -55,6 +63,14 @@ inline std::vector<std::string> getInstructionNames() {
         "subStack",
         "dump",
         "move",
-        "jump"
+        "jump",
+
+        "storeByte",   // storeByte u64 var
+        "loadByte",
+
+        "compareEq",
+        "compareEqStack",
+        "jumpIfEq",
+        "jumpIfNEq"
     };
 }

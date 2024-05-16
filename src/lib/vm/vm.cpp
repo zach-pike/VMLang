@@ -3,8 +3,10 @@
 #include <iostream>
 #include <sstream>
 
+#include <string.h>
 #include <assert.h>
 #include "vm/errors/errors.hpp"
+
 
 VMValue VM::getVariableFromInstructionArg(InstructionArg arg) {
     switch(arg.type) {
@@ -118,6 +120,78 @@ bool VM::stepExecution(bool debug) {
             VMValue val = getVariableFromInstructionArg(arg1);
             assert((val.vartype == VMValueType::UINT && val.size == 8));
             regs.ip = val.value.uInt;
+
+            ipIncreases = false;
+        } break;
+
+        case Instructions::StoreByte: {
+            assert((arg1.type == InstructionArgType::NUMBER));
+            assert((arg1.var.vartype == VMValueType::UINT));
+            assert((arg1.var.size == 8));
+
+            std::uint64_t addr = arg1.var.value.uInt;
+
+            VMValue val = getVariableFromInstructionArg(arg2);
+            assert((val.size == 1));
+            assert((val.vartype == VMValueType::UINT));
+
+            std::uint8_t byteToWrite = (std::uint8_t)val.value.uInt;
+
+            memory.setU8(addr, byteToWrite);
+        } break;
+
+        case Instructions::CompareEq: {
+            VMValue val1 = getVariableFromInstructionArg(arg1);
+            VMValue val2 = getVariableFromInstructionArg(arg2);
+
+            if (val1.vartype == val2.vartype &&
+                  memcmp(&val1.value, &val2.value, sizeof(VMValue::ValueUnion)) == 0) {
+                stack.push(VMValue((std::uint8_t)1));
+            } else {
+                stack.push(VMValue((std::uint8_t)0));
+            }
+        } break;
+
+        case Instructions::CompareEqStack: {
+            VMValue val1 = stack.pop();
+            VMValue val2 = stack.pop();
+
+            if (val1.vartype == val2.vartype &&
+                  memcmp(&val1.value, &val2.value, sizeof(VMValue::ValueUnion)) == 0) {
+                stack.push(VMValue((std::uint8_t)1));
+            } else {
+                stack.push(VMValue((std::uint8_t)0));
+            }
+        } break;
+
+        case Instructions::JumpIfTrue: {
+            VMValue v = stack.pop();
+            assert((v.vartype == VMValueType::SINT) || (v.vartype == VMValueType::UINT));
+
+            VMValue addr = getVariableFromInstructionArg(arg1);
+            assert((addr.vartype == VMValueType::SINT) || (addr.vartype == VMValueType::UINT));
+            assert((addr.size == 8));
+
+            if (v.value.uInt != 0) {
+                regs.ip = addr.value.uInt;
+
+                ipIncreases = false;
+            }
+        } break;
+
+        case Instructions::JumpIfFalse: {
+            VMValue v = stack.pop();
+            assert((v.vartype == VMValueType::SINT) || (v.vartype == VMValueType::UINT));
+
+            VMValue addr = getVariableFromInstructionArg(arg1);
+            assert((addr.vartype == VMValueType::SINT) || (addr.vartype == VMValueType::UINT));
+            assert((addr.size == 8));
+
+            if (v.value.uInt == 0) {
+                regs.ip = addr.value.uInt;
+
+                ipIncreases = false;
+            }
 
             ipIncreases = false;
         } break;
