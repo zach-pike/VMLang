@@ -6,17 +6,17 @@
 Stack::Stack() {}
 Stack::~Stack() {}
 
-void Stack::pushStackItem(StackItem item) {
+void Stack::push(VMVariableDatatype item) {
     stack.push_back(item);
 }
 
-StackItem Stack::popStackItem() {
-    StackItem a = peek();
+VMVariableDatatype Stack::pop() {
+    VMVariableDatatype a = peek();
     stack.pop_back();
     return a;
 }
 
-StackItem Stack::peek() const {
+VMVariableDatatype Stack::peek() const {
     return stack.back();
 }
 
@@ -24,16 +24,34 @@ void Stack::dump() const {
     // Iterate backwards thru list
 
     for (int i=stack.size()-1; i >= 0; i--) {
-        StackItem itm = stack.at(i);
+        VMVariableDatatype itm = stack.at(i);
 
         // Print the item
         std::string s;
         s.append("Stack item (");
 
-        if (itm.isSigned) s.push_back('S'); else s.push_back('U');
-        s.append(std::to_string(itm.size*8));
-        s.append("): ");
-        s.append(std::to_string(itm.value));
+        switch (itm.vartype) {
+            case VMVariableType::UINT: {
+                s.push_back('U');
+                s.append(std::to_string(itm.size));
+                s.append("): ");
+                s.append(std::to_string(itm.value.uInt));
+            } break;
+            case VMVariableType::SINT: {
+                s.push_back('S');
+                s.append(std::to_string(itm.size));
+                s.append("): ");
+                s.append(std::to_string(itm.value.sInt));
+            } break;
+            case VMVariableType::FLOAT: {
+                s.append("Float): ");
+                s.append(std::to_string(itm.value.floatVal));
+            } break;
+            case VMVariableType::DOUBLE: {
+                s.append("Float): ");
+                s.append(std::to_string(itm.value.doubleVal));
+            } break;
+        }
 
         std::cout << s << '\n';
     }

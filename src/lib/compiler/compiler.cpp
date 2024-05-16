@@ -9,17 +9,11 @@
 
 Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
     std::string _strval,
-    std::uint64_t _value,
-    std::uint8_t _size,
-    bool _isSigned,
-    bool _isUnused,
+    VMVariableDatatype _var,
     PrecompiledInstructionArgumentType _type
 ):
     strValue(_strval),
-    value(_value),
-    size(_size),
-    isSigned(_isSigned),
-    isUnused(_isUnused),
+    var(_var),
     type(_type) {}
 
 Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
@@ -46,44 +40,98 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
 
         std::string s = firstToken.value.substr(1);
 
-        std::uint64_t regNum = std::find(regs.begin(), regs.end(), s) - regs.begin();;
+        std::uint64_t regNum = std::find(regs.begin(), regs.end(), s) - regs.begin();
 
         // initialize struct
         strValue = "";
-        value = regNum;
-        size = 8;
-        isSigned = false;
-        isUnused = false;
-        type = PrecompiledInstructionArgumentType::REG;
+        var = VMVariableDatatype(regNum);
+        type = PrecompiledInstructionArgumentType::REGISTER;
 
 
     } else if (firstToken.value.rfind('$', 0) == 0) {
-        std::string s = firstToken.value.substr(1);
-
-        strValue = s;
-        value = 0;
-        size = 8;
-        isSigned = false;
-        isUnused = false;
+        strValue = firstToken.value.substr(1);
+        var = VMVariableDatatype();
         type = PrecompiledInstructionArgumentType::LABEL_ADDRESS;
-    } else if (firstToken.value.rfind('u', 0) == 0 || firstToken.value.rfind('s', 0) == 0) {
-        std::string s = firstToken.value.substr(1);
+    } else if (firstToken.value.rfind('u', 0) == 0) {
+        std::uint8_t sizeBytes = std::stoi(firstToken.value.substr(1)) / 8;
 
         strValue = "";
-        size = std::stoi(s) / 8;
+        type = PrecompiledInstructionArgumentType::NUMBER;
 
-        isSigned = firstToken.value.rfind('s', 0) == 0;
-        isUnused = false;
-        type = PrecompiledInstructionArgumentType::IMM;
+        // Initialize value
+        var = VMVariableDatatype();
+        var.isUninitialized = false;
+        var.vartype = VMVariableType::UINT;
+        var.size = sizeBytes;
+
+        // Assert that there is parens around number
+        assert((tokens.at(1).type == TokenType::LEFT_PAREN));
+        assert((tokens.at(3).type == TokenType::RIGHT_PAREN));
 
         LexerToken valueToken = tokens.at(2);
         assert((valueToken.type == TokenType::LITERAL));
 
-        value = std::stoull(valueToken.value);
-    } else {
+        var.value.uInt = std::stoull(valueToken.value);
+    }  else if (firstToken.value.rfind('s', 0) == 0) {
+        std::uint8_t sizeBytes = std::stoi(firstToken.value.substr(1)) / 8;
+
+        strValue = "";
+        type = PrecompiledInstructionArgumentType::NUMBER;
+
+        // Initialize value
+        var = VMVariableDatatype();
+        var.isUninitialized = false;
+        var.vartype = VMVariableType::SINT;
+        var.size = sizeBytes;
+
+        // Assert that there is parens around number
+        assert((tokens.at(1).type == TokenType::LEFT_PAREN));
+        assert((tokens.at(3).type == TokenType::RIGHT_PAREN));
+
+        LexerToken valueToken = tokens.at(2);
+        assert((valueToken.type == TokenType::LITERAL));
+
+        var.value.sInt = std::stoll(valueToken.value);
+    } else if (firstToken.value.rfind("float", 0) == 0) {
+        strValue = "";
+        type = PrecompiledInstructionArgumentType::NUMBER;
+
+        // Initialize value
+        var = VMVariableDatatype();
+        var.isUninitialized = false;
+        var.vartype = VMVariableType::FLOAT;
+        var.size = sizeof(float);
+
+        // Assert that there is parens around number
+        assert((tokens.at(1).type == TokenType::LEFT_PAREN));
+        assert((tokens.at(3).type == TokenType::RIGHT_PAREN));
+
+        LexerToken valueToken = tokens.at(2);
+        assert((valueToken.type == TokenType::LITERAL));
+
+        var.value.floatVal = std::stof(valueToken.value);
+    } else if (firstToken.value.rfind("double", 0) == 0) {
+        strValue = "";
+        type = PrecompiledInstructionArgumentType::NUMBER;
+
+        // Initialize value
+        var = VMVariableDatatype();
+        var.isUninitialized = false;
+        var.vartype = VMVariableType::DOUBLE;
+        var.size = sizeof(double);
+
+        // Assert that there is parens around number
+        assert((tokens.at(1).type == TokenType::LEFT_PAREN));
+        assert((tokens.at(3).type == TokenType::RIGHT_PAREN));
+
+        LexerToken valueToken = tokens.at(2);
+        assert((valueToken.type == TokenType::LITERAL));
+
+        var.value.doubleVal = std::stod(valueToken.value);
+    }
+    else {
         throw std::runtime_error("Could not parse arguments!");
     }
-
 }
 
 Compiler::PrecompiledInstruction::PrecompiledInstruction(
@@ -267,55 +315,22 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
         auto symbolList = symbols.at(it->first);
 
         for (const auto& sym : symbolList) {
-            if (sym.arg1.isUnused && sym.arg2.isUnused) {
-                assem.insertInstruction(sym.instr);
+            InstructionArg arg1;
+            InstructionArg arg2;
 
-            } else if (!sym.arg1.isUnused && sym.arg2.isUnused) {
-                InstructionArg arg1;
-                
-                if (sym.arg1.type == PrecompiledInstructionArgumentType::IMM) {
-                    arg1.type = InstructionArgType::IMM,
-                    arg1.size = sym.arg1.size;
-                    arg1.isSigned = sym.arg1.isSigned;
-                    arg1.value = sym.arg1.value;
-                } else if (sym.arg1.type == PrecompiledInstructionArgumentType::REG) {
-                    arg1.type = InstructionArgType::REG;
-                    arg1.size = 8;
-                    arg1.isSigned = false;
-                    arg1.value = sym.arg1.value;
-                }
-
-                assem.insertInstruction(sym.instr, arg1);
-            } else if (!sym.arg1.isUnused && !sym.arg2.isUnused) {
-                InstructionArg arg1;
-                InstructionArg arg2;
-                
-                if (sym.arg1.type == PrecompiledInstructionArgumentType::IMM) {
-                    arg1.type = InstructionArgType::IMM,
-                    arg1.size = sym.arg1.size;
-                    arg1.isSigned = sym.arg1.isSigned;
-                    arg1.value = sym.arg1.value;
-                } else if (sym.arg1.type == PrecompiledInstructionArgumentType::REG) {
-                    arg1.type = InstructionArgType::REG;
-                    arg1.size = 8;
-                    arg1.isSigned = false;
-                    arg1.value = sym.arg1.value;
-                }
-                
-                if (sym.arg2.type == PrecompiledInstructionArgumentType::IMM) {
-                    arg2.type = InstructionArgType::IMM,
-                    arg2.size = sym.arg2.size;
-                    arg2.isSigned = sym.arg2.isSigned;
-                    arg2.value = sym.arg2.value;
-                } else if (sym.arg2.type == PrecompiledInstructionArgumentType::REG) {
-                    arg2.type = InstructionArgType::REG;
-                    arg2.size = 8;
-                    arg2.isSigned = false;
-                    arg2.value = sym.arg2.value;
-                }
-
-                assem.insertInstruction(sym.instr, arg1, arg2);
+            if (sym.arg1.type == PrecompiledInstructionArgumentType::LABEL_ADDRESS) {
+                arg1 = InstructionArg(labelAddresses.at(sym.arg1.strValue));
+            } else {
+                arg1 = sym.arg1.var;
             }
+
+            if (sym.arg2.type == PrecompiledInstructionArgumentType::LABEL_ADDRESS) {
+                arg2 = InstructionArg(labelAddresses.at(sym.arg2.strValue));
+            } else {
+                arg2 = sym.arg2.var;
+            }
+
+            assem.insertInstruction(sym.instr, arg1, arg2);
         }
     }
 

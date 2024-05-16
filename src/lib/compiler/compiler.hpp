@@ -4,33 +4,26 @@
 #include <map>
 
 #include "lib/vm.hpp"
+#include "lib/variable/variable.hpp"
 #include "lexer/lexer.hpp"
 
 class Compiler {
 private:
     enum class PrecompiledInstructionArgumentType {
-        IMM,
-        REG,
+        NUMBER,
+        REGISTER,
         LABEL_ADDRESS
     };
 
     struct PrecompiledInstructionArgument {
         std::string strValue;
-
-        std::uint64_t value;
-        std::uint8_t size;
-        bool isSigned;
-        bool isUnused;
-
+        VMVariableDatatype var;
         PrecompiledInstructionArgumentType type;
 
         PrecompiledInstructionArgument(
             std::string _sv = "",
-            std::uint64_t _v = 0,
-            std::uint8_t sz = 0,
-            bool is = false, 
-            bool iu = true,
-            PrecompiledInstructionArgumentType tp = PrecompiledInstructionArgumentType::IMM);
+            VMVariableDatatype _var = VMVariableDatatype(),
+            PrecompiledInstructionArgumentType tp = PrecompiledInstructionArgumentType::NUMBER);
     
         PrecompiledInstructionArgument(
             const std::vector<LexerToken>& tokens

@@ -1,5 +1,4 @@
 main(256):
 push u16(420)
-
 dump
 halt

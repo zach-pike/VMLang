@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <vector>
 
-
 enum class VMReg : std::uint8_t {
     A  = 0,
     B  = 1,
@@ -17,29 +16,28 @@ enum class VMReg : std::uint8_t {
 
 struct VMRegs {
     // General registers
-    std::uint64_t a;
-    std::uint64_t b;
-    std::uint64_t c;
-    std::uint64_t d;
+    VMVariableDatatype a;
+    VMVariableDatatype b;
+    VMVariableDatatype c;
+    VMVariableDatatype d;
 
     std::uint64_t ip;  // Instruction Pointer
 
-    std::uint64_t& getReg(VMReg);
+    VMVariableDatatype getReg(VMReg) const;
+    void               setReg(VMReg, VMVariableDatatype);
 };
 
+// This allow the InstructionArg class to represent all datatypes along with
 enum class InstructionArgType : std::uint8_t {
-    IMM          = 0,
-    REG          = 1,
-    IMM_MEM_ADDR = 2
+    NUMBER   = 0,
+    REGISTER = 1
 };
 
 struct InstructionArg {
+    VMVariableDatatype var;
     InstructionArgType type;
-    std::uint8_t       size;      // in bytes 
-    bool               isSigned;
-    std::uint64_t      value;
 
-    InstructionArg(InstructionArgType type = InstructionArgType::IMM, std::uint8_t size = 0, std::uint64_t value = 0, bool isSigned = false);
+    InstructionArg(VMVariableDatatype var = VMVariableDatatype(), InstructionArgType type = InstructionArgType::NUMBER);
     std::string toString() const;
 } __attribute__((packed));
 
@@ -58,7 +56,11 @@ enum class Instructions : std::uint8_t {
     Sub      = 6,
     SubStack = 7,
 
-    Dump     = 8
+    // Debug
+    Dump     = 8,
+
+    Move     = 9,
+    Jump     = 10,
 };
 
 class VM {
@@ -69,6 +71,8 @@ private:
     // System RAM
     SystemMemory memory;
     Stack stack;
+
+    VMVariableDatatype getVariableFromInstructionArg(InstructionArg arg);
 public:
     VM();
     ~VM();

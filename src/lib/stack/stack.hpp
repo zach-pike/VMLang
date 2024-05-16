@@ -3,22 +3,18 @@
 #include <vector>
 #include <cstdint>
 
-struct StackItem {
-    std::uint64_t value;
-    std::uint8_t  size;
-    bool          isSigned;
-};
+#include "lib/variable/variable.hpp"
 
 class Stack {
 private:
-    std::vector<StackItem> stack;
+    std::vector<VMVariableDatatype> stack;
 public:
     Stack();
     ~Stack();
 
-    void pushStackItem(StackItem item);
-    StackItem popStackItem();
-    StackItem peek() const;
+    void push(VMVariableDatatype item);
+    VMVariableDatatype pop();
+    VMVariableDatatype peek() const;
 
     void dump() const;
 };
