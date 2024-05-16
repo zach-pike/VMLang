@@ -1,9 +1,32 @@
-main(256):
-compareEq u8(20), u8(20)
-jumpIfEq $test
+main:
+push $finish
+push u8(6)
+jump $fib
+finish:
 dump
 halt
 
-test(1000):
-storeByte u64(0), u8(96)
-halt
+fib:
+pop %d
+move u8(0), %c
+
+move u32(0), %a
+move u32(1), %b
+
+fibLoop:
+compareEq %c, %d
+jumpIfEq $fibEnd
+
+add %a, %b
+move %b, %a
+pop %b
+
+add %c, u8(1)
+pop %c
+
+jumpIfNEq $fibLoop
+
+fibEnd:
+pop %b
+push %a
+jump %b
