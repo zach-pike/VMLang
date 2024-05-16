@@ -32,6 +32,11 @@ std::vector<LexerToken> tokenizeString(std::ifstream& content) {
     std::string line;
     while(std::getline(content, line)) {
         // Trim the line of spaces and whitespace first
+        std::size_t comment = line.find(';');
+
+        if (comment != std::string::npos)
+            line.erase(comment);
+
         ltrim(line);
         rtrim(line);
 
