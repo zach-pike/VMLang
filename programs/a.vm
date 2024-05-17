@@ -1,4 +1,0 @@
-main:
-push s32(-10)
-dump
-halt

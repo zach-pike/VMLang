@@ -127,11 +127,12 @@ bool VM::stepExecution(bool debug) {
         } break;
 
         case Instructions::StoreByte: {
-            assert((arg1.type == InstructionArgType::NUMBER));
-            assert((arg1.var.vartype == VMValueType::UINT));
-            assert((arg1.var.size == 8));
+            VMValue address = getVariableFromInstructionArg(arg1);
 
-            std::uint64_t addr = arg1.var.value.uInt;
+            assert((address.vartype == VMValueType::UINT));
+            assert((address.size == 8));
+
+            std::uint64_t addr = address.value.uInt;
 
             VMValue val = getVariableFromInstructionArg(arg2);
             assert((val.size == 1));
@@ -143,11 +144,10 @@ bool VM::stepExecution(bool debug) {
         } break;
 
         case Instructions::LoadByte: {
-            assert((arg1.type == InstructionArgType::NUMBER));
-            assert((arg1.var.vartype == VMValueType::UINT));
-            assert((arg1.var.size == 8));
-
-            std::uint64_t addr = arg1.var.value.uInt;
+            VMValue address = getVariableFromInstructionArg(arg1);
+            assert((address.vartype == VMValueType::UINT));
+            assert((address.size == 8));
+            std::uint64_t addr = address.value.uInt;
 
             assert((arg2.type == InstructionArgType::REGISTER));
             std::uint8_t value = memory.getU8(addr);

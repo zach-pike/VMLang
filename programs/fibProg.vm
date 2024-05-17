@@ -9,10 +9,12 @@
 
 main:
 push $finish ; Push return address of function call onto stack <-----
-push u8(10)  ; Calculate the 10th fibbonacci number                 |
+loadByte u64(100000), %a ; Loads byte from stdin                    |
+sub %a, u8(48)           ; Subtracts the value of 0                 |
 jump $fib    ; Jump to the fib function                             |
              ;                                                      |
 finish:      ; <- Fib function returns here when done ---------------
+dump
 halt
 
 fib:

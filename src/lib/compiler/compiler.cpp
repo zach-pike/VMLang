@@ -172,6 +172,7 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
 
                 currentLabel = tokens.at(i).value;
                 sectionOrder.push_back(currentLabel);
+                sections[currentLabel] = std::vector<PrecompiledInstruction>();
 
                 // Parse offset
                 // assert((tokens.at(i + 2).type == TokenType::LITERAL));
@@ -185,6 +186,8 @@ void Compiler::compileAndWriteBinary(std::string filePath) {
                 continue;
             }
         }
+
+        
 
         // Read first token as instruction name
         LexerToken nameToken = tokens.at(i);
