@@ -165,7 +165,7 @@ bool VM::stepExecution(bool debug) {
         } break;
 
         case Instructions::JumpIfTrue: {
-            VMValue v = stack.peek();
+            VMValue v = stack.pop();
             assert((v.vartype == VMValueType::SINT) || (v.vartype == VMValueType::UINT));
 
             VMValue addr = getVariableFromInstructionArg(arg1);
@@ -174,15 +174,12 @@ bool VM::stepExecution(bool debug) {
 
             if (v.value.uInt != 0) {
                 regs.ip = addr.value.uInt;
-
-                stack.pop();
-
                 ipIncreases = false;
             }
         } break;
 
         case Instructions::JumpIfFalse: {
-            VMValue v = stack.peek();
+            VMValue v = stack.pop();
             assert((v.vartype == VMValueType::SINT) || (v.vartype == VMValueType::UINT));
 
             VMValue addr = getVariableFromInstructionArg(arg1);
@@ -191,9 +188,6 @@ bool VM::stepExecution(bool debug) {
 
             if (v.value.uInt == 0) {
                 regs.ip = addr.value.uInt;
-
-                stack.pop();
-
                 ipIncreases = false;
             }
 
