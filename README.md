@@ -13,10 +13,84 @@ Finally, `cmake --build ./build/ --target vmcl --config Release`
 Once that finishes, check the `build` folder, the executable `vmcl` there can be used in place, or you may move it somewhere else.
 
 ### How to use
+The CLI is very good, to run the CLI help just run `vmcl` with no args or with the `--help` flag
 
 There are a few examples in `src/test/testfiles` for unit testing.
 
-### Instruction Reference
+
+## Argument Types
+
+### Immediate Values
+Immediate values allow you to directly use numbers as arguments to the instruction
+
+The immediate is started with either a `u` or a `s` for `unsigned` and `signed`. That is immediately followed by the bit width (options: [8,16,32,64])
+
+```
+main:
+push s32(-10)
+dump
+halt
+```
+Output below
+
+```
+------ REGS ------
+A: VMVar { Null }
+B: VMVar { Null }
+C: VMVar { Null }
+D: VMVar { Null }
+IP: 19
+------ Stack ------
+Stack item: VMVar { s32(-10) }
+```
+---
+
+### Registers
+Whenever you need to store a value somewhere but you may for some reason don't wanna use the stack? Use a register
+
+```
+main:
+move u16(10), %a
+halt
+```
+This code above moves a 10 into the A register. Percent signs are used to represent a register in a argument
+
+There are 5 registers as of now
+ - A (`%a`)
+ - B (`%b`)
+ - C (`%c`)
+ - D (`%d`)
+ - Instruction Pointer (`%ip`)
+
+## Execution Order
+Instructions are exectuted linearly from top to bottom, all programs have atleast 1 label. Execution also doesn't stop when hitting a label. A label is just a marker that can be used to get its final memory location
+
+```
+main:
+halt
+```
+Above is the most simple program you could make, the `main:` part is the label definition
+
+## How to get memory address of label
+
+```
+main:
+push $testing
+
+pop %a
+jump %a
+nop
+nop
+nop
+nop
+
+testing:
+dump
+halt
+```
+When you see the `$`, that is a marker that tells the compiler to fill this in with a `u64` with the address of the label specified, this is useful for `jump` like instructions.
+
+## Instruction Reference
 
 ### 0 : No Operation (`nop`)
 Does absolutely nothing
