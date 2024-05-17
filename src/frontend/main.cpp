@@ -51,7 +51,8 @@ int main(int argc, char** argv) {
 
         mem.loadFromFile(programArgs.get("-r"));
 
-        mem.addMMIODevice(std::make_shared<IOmmio>(1337));
+        // Use of stdin and stdout thru this
+        mem.addMMIODevice(std::make_shared<IOmmio>(100000));
 
         try {
             while(!vm.stepExecution(printDebug));
@@ -79,6 +80,7 @@ int main(int argc, char** argv) {
         Stack&      stack = vm.getStack();
 
         mem.loadFromFile(programArgs.get("-d"));
+        mem.addMMIODevice(std::make_shared<IOmmio>(100000));
 
         while(true) {
             printf("> ");

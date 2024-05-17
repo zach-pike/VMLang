@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 
 IOmmio::IOmmio(std::uint64_t baseAddr):
     range(MMIORange{ baseAddr, baseAddr + 1 }) {}
@@ -15,5 +16,5 @@ void IOmmio::onWrite(std::uint8_t value, std::uint64_t address) {
 }
 
 std::uint8_t IOmmio::onRead(std::uint64_t address) {
-    return 0;
+    return std::cin.get();
 }

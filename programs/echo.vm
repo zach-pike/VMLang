@@ -1,0 +1,32 @@
+main:
+move $dataStorage, %a
+
+readLoop:
+loadByte u64(100000), %b    ; Read a byte in from stdin
+storeByte %a, %b            ; Store char at calculated addr
+
+add %a, u64(1)  ; Add 1 to address
+pop %a         ; Store address in b reg
+
+compareEq %b, u8(10)        ; If we get newline then were done
+jumpIfEq $printStart
+jump $readLoop
+
+printStart:
+move $dataStorage, %a
+
+printLoop:
+loadByte %a, %b
+storeByte u64(100000), %b
+
+add %a, u64(1) ; Increment address 
+pop %a
+
+compareEq %b, u8(10)
+jumpIfNEq $printLoop
+
+end:
+halt
+
+dataStorage:
+nop
