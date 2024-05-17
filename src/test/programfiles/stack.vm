@@ -1,0 +1,44 @@
+;   Stack Test
+;   github.com/zach-pike/VMLang (2024)
+;
+;   This program adds numbers 1 - 10000 onto
+;   the stack and pops them off making sure
+;   that each value is the one expected
+
+main:
+move u16(0), %a ; Initialize count register
+
+loop1:
+add %a, u8(1)   ; add 1 to count and store
+pop %a          ; it back in the count register
+
+push %a         ; Push value
+
+compareEq u16(10000), %a    ; Compare count register with 10000
+jumpIfEq $loop2             ; If its equal, were done
+jump $loop1            ; if not keep looping
+
+
+loop2:
+pop %b              ; Pop a value (first iter should make B=10000)
+
+compareEq %a, %b    ; If the value from the stack matches the
+jumpIfEq $good      ; counter were good, else something bad happened
+jump $error
+
+good:
+sub %a, u8(1)       ; Subtract 1 from the counter
+pop %a
+
+; If the counter becomes zero that means were done
+compareEq u16(0), %a
+jumpIfEq $end       ; End program
+jump $loop2    ; Keep looping
+
+error:
+dump                        ; Error handler
+storeByte u64(100000), u8(0) ; Trigger Error
+jump $end
+
+end:                ; Program end
+halt

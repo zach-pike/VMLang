@@ -4,6 +4,7 @@
 #include <fstream>
 #include <assert.h>
 #include <algorithm>
+#include <sstream>
 
 #include "programAssembler/prgmAssembler.hpp"
 #include "vm/registers/registers.hpp"
@@ -102,6 +103,14 @@ Compiler::PrecompiledInstructionArgument::PrecompiledInstructionArgument(
         var.value.doubleVal = std::stod(valueToken.value);
     }
     else {
+        // std::stringstream ss;
+
+        // for (const auto& a : tokens) {
+        //     ss << (int)a.type << ' ' << a.value << '\n';
+        // }
+
+        // std::cout << ss.rdbuf();
+
         throw std::runtime_error("Could not parse arguments!");
     }
 }
@@ -120,7 +129,6 @@ Compiler::~Compiler() {}
 
 void Compiler::parseFile(std::string fp) {
     std::ifstream file(fp);
-    std::cout << fp << '\n';
     if (!file.is_open()) throw std::runtime_error("Couldn't open file");
 
     auto nTokens = tokenizeString(file);

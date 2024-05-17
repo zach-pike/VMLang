@@ -15,10 +15,10 @@ add_executable(vmcl ${VMFRONTENDSRC})
 
 target_link_libraries(vmcl vm)
 
-add_executable(stacktest src/test/stacktest.cpp)
+add_executable(stacktest src/test/stacktest.cpp src/test/testingmmio/testingmmio.cpp)
 target_link_libraries(stacktest vm)
 add_test(NAME StackTest COMMAND stacktest)
 
-add_executable(fibtest src/test/fibtest.cpp)
+add_executable(fibtest src/test/fibtest.cpp src/test/testingmmio/testingmmio.cpp)
 target_link_libraries(fibtest vm)
 add_test(NAME FibTest COMMAND fibtest)

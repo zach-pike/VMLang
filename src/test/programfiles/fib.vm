@@ -1,0 +1,33 @@
+main:
+push $finish ; Push return address of function call onto stack <-----
+push u8(10)  ; Calculate the 10th fibbonacci number                 |
+jump $fib    ; Jump to the fub function                             |
+             ;                                                      |
+finish:      ; <- Fib function returns here when done ---------------
+halt
+
+fib:
+pop %d          ; Pop the loop count out of the stack
+move u8(0), %c  ; Initializes C register with u8(0)
+
+; Initial values for fib sequence
+move u32(0), %a 
+move u32(1), %b
+
+fibLoop:
+compareEq %c, %d    ; Check if we should end the loop
+jumpIfEq $fibEnd    ; 
+
+add %a, %b
+move %b, %a
+pop %b
+
+add %c, u8(1)
+pop %c
+
+jump $fibLoop
+
+fibEnd:
+pop %b
+push %a
+jump %b
