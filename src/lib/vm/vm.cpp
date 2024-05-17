@@ -67,9 +67,11 @@ bool VM::stepExecution(bool debug) {
         } break;
 
         case Instructions::Pop: {
-            assert((arg1.type == InstructionArgType::REGISTER));
             VMValue item = stack.pop();
 
+            if (arg1.var.isUninitialized) break;
+
+            assert((arg1.type == InstructionArgType::REGISTER));
             regs.setReg((VMReg)arg1.var.value.uInt, item);
         } break;
 
@@ -138,6 +140,19 @@ bool VM::stepExecution(bool debug) {
             std::uint8_t byteToWrite = (std::uint8_t)val.value.uInt;
 
             memory.setU8(addr, byteToWrite);
+        } break;
+
+        case Instructions::LoadByte: {
+            assert((arg1.type == InstructionArgType::NUMBER));
+            assert((arg1.var.vartype == VMValueType::UINT));
+            assert((arg1.var.size == 8));
+
+            std::uint64_t addr = arg1.var.value.uInt;
+
+            assert((arg2.type == InstructionArgType::REGISTER));
+            std::uint8_t value = memory.getU8(addr);
+
+            regs.setReg((VMReg)arg2.var.value.uInt, VMValue(value));
         } break;
 
         case Instructions::CompareEq: {

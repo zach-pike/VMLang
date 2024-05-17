@@ -1,6 +1,0 @@
-main:
-storeByte u64(1337), u8(107)
-storeByte u64(1337), u8(121)
-storeByte u64(1337), u8(115)
-storeByte u64(1337), u8(10)
-halt

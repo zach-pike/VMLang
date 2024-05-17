@@ -5,7 +5,7 @@
 
 int main() {
     Compiler cmplr;
-    cmplr.parseFile("../src/test/programfiles/fib.vm");
+    cmplr.parseFile("../src/test/testfiles/fib.vm");
     cmplr.compileAndWriteBinary("/tmp/fib.vmc");
 
     VM vm;

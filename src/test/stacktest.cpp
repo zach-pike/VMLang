@@ -7,7 +7,7 @@
 
 int main() {
     Compiler cmplr;
-    cmplr.parseFile("../src/test/programfiles/stack.vm");
+    cmplr.parseFile("../src/test/testfiles/stack.vm");
     cmplr.compileAndWriteBinary("/tmp/stack.vmc");
 
     VM vm;

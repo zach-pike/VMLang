@@ -1,3 +1,12 @@
+;   Fibbonacci Test
+;   Author: zach-pike
+;   github.com/zach-pike/VMLang (2024)
+;
+;   This program calculates the nth fibbonacci number
+;   Below you will see the main section, the second instruction
+;   Sets the parameter for fibbonacci and when the machine halts,
+;   The final value will be on the stack
+
 main:
 push $finish ; Push return address of function call onto stack <-----
 push u8(10)  ; Calculate the 10th fibbonacci number                 |
